@@ -1,0 +1,121 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/debian
+{
+	"name": "Development Workstation",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	// "image": "mcr.microsoft.com/devcontainers/base:trixie",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": "."
+	},
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "25",
+			"installMaven": true,
+			"mavenVersion": "latest"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "lts",
+			"nodeGypDependencies": true
+		},
+		"ghcr.io/devcontainers/features/git:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {
+			"version": "latest"
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [8080, 8081, 5005, 3000],
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"java.configuration.runtimes": [
+					{
+						"name": "JavaSE-25",
+						"path": "/usr/local/sdkman/candidates/java/current",
+						"default": true
+					}
+				],
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"files.eol": "\n",
+				"editor.formatOnSave": true,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"[java]": {
+					"editor.defaultFormatter": "redhat.java"
+				},
+				"[scala]": {
+					"editor.defaultFormatter": "scalameta.metals"
+				},
+				"[typescript]": {
+					"editor.defaultFormatter": "esbenp.prettier-vscode"
+				},
+				"[json]": {
+					"editor.defaultFormatter": "esbenp.prettier-vscode"
+				},
+				"[yaml]": {
+					"editor.defaultFormatter": "redhat.vscode-yaml"
+				},
+				"[xml]": {
+					"editor.defaultFormatter": "redhat.vscode-xml"
+				}
+			},
+			"extensions": [
+				// Java
+				"redhat.java",
+				"vscjava.vscode-java-debug",
+				"vscjava.vscode-java-test",
+				"vscjava.vscode-maven",
+				"vscjava.vscode-java-dependency",
+				
+				// Quarkus
+				"redhat.vscode-quarkus",
+				
+				// Scala
+				"scalameta.metals",
+				"scala-lang.scala",
+				
+				// TypeScript/JavaScript
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				
+				// JSON/XML/YAML
+				"redhat.vscode-yaml",
+				"redhat.vscode-xml",
+				"tamasfe.even-better-toml",
+				
+				// Makefile
+				"ms-vscode.makefile-tools",
+				
+				// Git
+				"eamodio.gitlens",
+				
+				// General utilities
+				"editorconfig.editorconfig",
+				"streetsidesoftware.code-spell-checker",
+				"usernamehw.errorlens"
+			]
+		}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+
+	// Persistent cache mounts
+	"mounts": [
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.sbt,target=/home/vscode/.sbt,type=bind,consistency=cached",
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ivy2,target=/home/vscode/.ivy2,type=bind,consistency=cached"
+	],
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "vscode"
+}
+
