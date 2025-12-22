@@ -1,6 +1,17 @@
 #!/bin/bash
 set -e
 
+# Restore dotfiles
+echo "📂 Restoring dotfiles..."
+if [ ! -d "$HOME/dotfiles" ]; then
+    git clone https://github.com/akinevz2/doftiles "$HOME/dotfiles"
+fi
+cd "$HOME/dotfiles"
+git pull origin main
+sudo apt-get update && sudo apt-get install -y stow
+make stow-shell
+echo "✅ Dotfiles restored!"
+
 # Install TypeScript globally
 echo "📦 Installing TypeScript and ts-node..."
 npm install -g typescript ts-node
@@ -44,8 +55,8 @@ make --version | head -n 1
 echo ""
 # echo "🚀 Setting up development environment with Warp CLI..."
 
-# echo "🌐 Warp CLI status:"
-# warp-cli --version
+echo "🌐 Warp CLI status:"
+warp-cli --version
 echo ""
 echo "💡 To use Warp CLI, run:"
 echo "   warp-cli register"

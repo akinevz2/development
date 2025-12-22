@@ -1,5 +1,16 @@
 # Dev Container Configuration
 
+This is a devcontainer
+
+# Security Practices
+
+Never trust client input - validate everything
+Use built-in ORM mechanisms for protection - Parametrised queries are automatic
+Audit everything - log security-relevant events to respectful and identifiable loggers
+Fail securely - Generic error messages, detailed logs
+Layer your security - multiple defenses prevent single point of failure
+Test security - don't assume it works, prove it behaves according to the scenario
+
 This dev container provides a complete development environment with:
 
 ## Included Tools & Languages
@@ -20,6 +31,7 @@ This dev container provides a complete development environment with:
 ## VS Code Extensions
 
 Pre-installed extensions for:
+
 - Java development (Red Hat, debugger, testing)
 - Quarkus support
 - Scala/Metals
@@ -32,6 +44,7 @@ Pre-installed extensions for:
 ## Port Forwarding
 
 Default forwarded ports:
+
 - `8080`: Main application (Quarkus default)
 - `8081`: Secondary application
 - `5005`: Java debug port
@@ -51,6 +64,7 @@ Maven, SBT, and Ivy2 caches are mounted from your host machine to speed up build
 ## Verification
 
 After the container starts, run:
+
 ```bash
 java -version      # Should show Java 25
 mvn -version       # Maven 3.9.9
@@ -65,12 +79,14 @@ make --version     # GNU Make
 ## Customization
 
 Edit `devcontainer.json` to:
+
 - Add more VS Code extensions
 - Change port forwarding
 - Modify settings
 - Add post-create commands
 
 Edit `Dockerfile` to:
+
 - Install additional system packages
 - Change tool versions
 - Add more global npm packages
