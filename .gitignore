@@ -1,0 +1,20 @@
+# Resume generated files
+resume/*.html
+resume/*.pdf
+
+# winxp.css is cloned, not tracked
+resume/winxp.css/
+resume/xp.css/
+
+# Node modules
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/settings.json
