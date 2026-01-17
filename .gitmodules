@@ -1,6 +1,8 @@
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/akinevz2/frontend.git
+	branch = main
 [submodule "resume"]
 	path = resume
 	url = https://github.com/akinevz2/resume
+	branch = main
