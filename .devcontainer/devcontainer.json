@@ -32,7 +32,7 @@
   },
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [8080, 8081, 5005, 3000],
+  "forwardPorts": [8080, 8081],
 
   // Configure tool-specific properties.
   "customizations": {
@@ -114,7 +114,6 @@
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.m2,target=/home/vscode/.m2,type=bind,consistency=cached",
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.sbt,target=/home/vscode/.sbt,type=bind,consistency=cached",
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ivy2,target=/home/vscode/.ivy2,type=bind,consistency=cached",
-    "source=/mnt/c/Users/akine/AppData/Roaming/Code/User,target=/host-vscode-config,type=bind,consistency=cached"
   ],
 
   // Dotfiles configuration

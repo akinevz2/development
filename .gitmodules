@@ -1,6 +1,6 @@
-[submodule "resume"]
-	path = resume
-	url = https://github.com/akinevz2/resume
 [submodule "frontend"]
 	path = frontend
 	url = https://github.com/akinevz2/frontend.git
+[submodule "resume"]
+	path = resume
+	url = https://github.com/akinevz2/resume
