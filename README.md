@@ -1,6 +1,6 @@
 # Dev Container Configuration
 
-This is a devcontainer
+Slim devcontainer for general development.
 
 # Security Practices
 
@@ -11,33 +11,20 @@ Fail securely - Generic error messages, detailed logs
 Layer your security - multiple defenses prevent single point of failure
 Test security - don't assume it works, prove it behaves according to the scenario
 
-This dev container provides a complete development environment with:
+This dev container provides a minimal development environment with:
 
 ## Included Tools & Languages
 
 - **Operating System**: Debian Bookworm (Slim)
-- **Java**: OpenJDK 25 (latest)
-- **Build Tools**: Maven 3.9.9, Make
-- **Quarkus**: CLI via JBang
 - **Node.js**: LTS version with npm
-- **TypeScript**: Latest version with ts-node
-- **Scala**: Latest version with SBT, Coursier, Scalafmt, Scalafix
-- **Data Format Tools**:
-  - JSON: `jq`, `jsonlint`
-  - XML: `xmlstarlet`
-  - YAML: `yq`, `yaml-language-server`
-  - Prettier for formatting
+- **Git** and **GitHub CLI**
 
 ## VS Code Extensions
 
 Pre-installed extensions for:
 
-- Java development (Red Hat, debugger, testing)
-- Quarkus support
-- Scala/Metals
 - TypeScript/JavaScript (ESLint, Prettier)
-- JSON/XML/YAML editing
-- Makefile tools
+- YAML editing
 - Git (GitLens)
 - Quality of life improvements
 
@@ -45,14 +32,20 @@ Pre-installed extensions for:
 
 Default forwarded ports:
 
-- `8080`: Main application (Quarkus default)
-- `8081`: Secondary application
-- `5005`: Java debug port
-- `3000`: Node.js applications
+- `8080`: General use
+- `8081`: General use
 
-## Persistent Volumes
+## Repository Layout
 
-Maven, SBT, and Ivy2 caches are mounted from your host machine to speed up builds across container rebuilds.
+Top-level directories are:
+
+- **personal/**: personal projects
+  - **website/** (formerly frontend)
+  - **gtkappfolder/**
+  - **pagerts/**
+  - **resume/**
+  - **KEYBOARD.md**
+- **uni/**: university projects and coursework
 
 ## Usage
 
@@ -66,14 +59,9 @@ Maven, SBT, and Ivy2 caches are mounted from your host machine to speed up build
 After the container starts, run:
 
 ```bash
-java -version      # Should show Java 25
-mvn -version       # Maven 3.9.9
 node -v            # Node.js LTS
 npm -v             # npm latest
-scala -version     # Scala latest
-sbt --version      # SBT
-quarkus --version  # Quarkus CLI
-make --version     # GNU Make
+git --version      # Git
 ```
 
 ## Customization

@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "yt-dlp-wrap": "^2.3.12",
-    "ytdlp.js": "^2.0.1"
-  }
-}

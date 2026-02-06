@@ -1,4 +1,5 @@
 {
   // Dotfiles configuration
-  "dotfiles": "https://github.com/akinevz2/configs.git"
+  "dotfiles": "https://github.com/akinevz2/configs.git",
+  "java.compile.nullAnalysis.mode": "automatic"
 }

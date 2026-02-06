@@ -1,8 +1,25 @@
-[submodule "frontend"]
-	path = frontend
-	url = https://github.com/akinevz2/frontend.git
+
+[submodule "personal/gtkappfolder"]
+	path = personal/gtkappfolder
+	url = https://github.com/akinevz2/gtkappfolder
 	branch = main
-[submodule "resume"]
-	path = resume
+[submodule "personal/pagerts"]
+	path = personal/pagerts
+	url = https://github.com/akinevz2/pagerts
+	branch = main
+[submodule "personal/website"]
+	path = personal/website
+	url = https://github.com/akinevz2/frontend
+	branch = main
+[submodule "uni/2025-report"]
+	path = uni/2025-report
+	url = https://github.com/akinevz2/2025-report.git
+	branch = main
+[submodule "uni/anle"]
+	path = uni/anle
+	url = https://github.com/akinevz2/academic-report-buildscripts.git
+	branch = main
+[submodule "personal/resume"]
+	path = personal/resume
 	url = https://github.com/akinevz2/resume
 	branch = main
