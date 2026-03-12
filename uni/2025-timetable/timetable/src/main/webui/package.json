@@ -1,0 +1,24 @@
+{
+  "name": "timetable-webui",
+  "version": "1.0.0",
+  "description": "Web UI for academic timetable management",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'No build step required for this project'",
+    "start": "serve ."
+  },
+  "keywords": [
+    "timetable",
+    "academic",
+    "schedule",
+    "calendar"
+  ],
+  "author": "University of Sussex",
+  "license": "MIT",
+  "dependencies": {
+    "xp.css": "0.2.6"
+  },
+  "devDependencies": {
+    "serve": "^14.0.1"
+  }
+}

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>University Timetable Manager</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="xp.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>University Timetable Manager</h1>
+        <p>Server-driven timetable with JSON mutation requests</p>
+        <div id="user-display" style="display: none">
+          <span id="user-name"></span>
+          <button id="logout-button">Logout</button>
+        </div>
+      </header>
+
+      <!-- Login Form -->
+      <section id="login-form" style="display: none">
+        <h2>Login</h2>
+        <form id="auth-form">
+          <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" required />
+          </div>
+          <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit">Login</button>
+        </form>
+      </section>
+
+      <section id="module-config">
+        <h2>Modules</h2>
+        <div id="modules-fragment"></div>
+      </section>
+
+      <section id="timetable-entries" class="panel">
+        <h2>Timetable Entries</h2>
+        <div id="timetable-entries-fragment"></div>
+        <div class="control-grid">
+          <label>
+            Module
+            <input
+              id="module-select"
+              type="text"
+              list="module-options"
+              placeholder="Start typing module name"
+            />
+            <datalist id="module-options"></datalist>
+          </label>
+          <label>
+            Day
+            <input
+              id="day-select"
+              type="text"
+              list="day-options"
+              placeholder="Monday"
+            />
+            <datalist id="day-options">
+              <option value="Monday"></option>
+              <option value="Tuesday"></option>
+              <option value="Wednesday"></option>
+              <option value="Thursday"></option>
+              <option value="Friday"></option>
+            </datalist>
+          </label>
+          <label>
+            Time
+            <input
+              id="time-select"
+              type="text"
+              list="time-options"
+              placeholder="10:00-11:00"
+            />
+            <datalist id="time-options">
+              <option value="9:00-10:00"></option>
+              <option value="10:00-11:00"></option>
+              <option value="11:00-12:00"></option>
+              <option value="12:00-13:00"></option>
+              <option value="13:00-14:00"></option>
+              <option value="14:00-15:00"></option>
+              <option value="15:00-16:00"></option>
+              <option value="16:00-17:00"></option>
+            </datalist>
+          </label>
+        </div>
+        <div class="control-actions">
+          <button id="assign-entry" class="assign-button">Assign Entry</button>
+          <button id="remove-entry" class="secondary-button">
+            Remove Entry
+          </button>
+          <button id="refresh-view" class="secondary-button">
+            Refresh View
+          </button>
+        </div>
+      </section>
+
+      <section id="calendar">
+        <h2>Weekly Calendar</h2>
+        <div id="calendar-fragment"></div>
+      </section>
+
+      <div class="status-bar" role="status" aria-live="polite">
+        <div id="status-message">Ready.</div>
+      </div>
+    </div>
+
+    <script src="js/raw.js"></script>
+    <script>
+      // Initialize widgets when the page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load widgets using RAW
+        RAW.loadWidget("calendar", "calendar-fragment");
+        RAW.loadWidget("modules", "modules-fragment");
+        RAW.loadWidget("entries", "timetable-entries-fragment");
+        RAW.loadWidget("login", "login-form");
+      });
+    </script>
+  </body>
+</html>
