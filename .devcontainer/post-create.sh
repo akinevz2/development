@@ -5,7 +5,7 @@ if [ ! -d "$HOME/dotfiles" ]; then
 fi
 cd "$HOME/dotfiles"
 git pull origin main
-sudo apt-get update && sudo apt-get install -y stow
+sudo apt-get update && sudo apt-get install -y stow pandoc texlive-latex-extra
 make stow-shell
 echo "✅ Dotfiles restored!"
 

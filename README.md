@@ -1,80 +1,84 @@
-# Dev Container Configuration
+# Development Workstation Devcontainer
 
-Slim devcontainer for general development.
+This repository is configured to run as a persistent development workstation in
+VS Code Dev Containers.
 
-# Security Practices
+## What This Devcontainer Includes
 
-Never trust client input - validate everything
-Use built-in ORM mechanisms for protection - Parametrised queries are automatic
-Audit everything - log security-relevant events to respectful and identifiable loggers
-Fail securely - Generic error messages, detailed logs
-Layer your security - multiple defenses prevent single point of failure
-Test security - don't assume it works, prove it behaves according to the scenario
+- Base image: Debian Bookworm slim
+- Build source: `.devcontainer/Dockerfile`
+- Devcontainer features:
+  - Node.js LTS
+  - Git (latest)
+  - GitHub CLI (latest)
+- Forwarded ports: 8080 and 8081
+- Default remote user: `vscode`
 
-This dev container provides a minimal development environment with:
+## Dotfiles and Persistence
 
-## Included Tools & Languages
+Dotfiles are restored from:
 
-- **Operating System**: Debian Bookworm (Slim)
-- **Node.js**: LTS version with npm
-- **Git** and **GitHub CLI**
+- Repository: `https://github.com/akinevz2/configs.git`
+- Target path: `~/dotfiles`
+- Install command: `cd ~/dotfiles && make stow`
 
-## VS Code Extensions
+The post-create script also ensures dotfiles are synced and shell links are
+applied using:
 
-Pre-installed extensions for:
+- `.devcontainer/post-create.sh`
+- `make stow-shell`
 
-- TypeScript/JavaScript (ESLint, Prettier)
-- YAML editing
-- Git (GitLens)
-- Quality of life improvements
+It also installs documentation tooling via apt:
 
-## Port Forwarding
+- `pandoc`
+- `texlive-latex-extra`
 
-Default forwarded ports:
+## VS Code Customization
 
-- `8080`: General use
-- `8081`: General use
+The devcontainer applies workspace defaults for:
 
-## Repository Layout
+- Bash as the default integrated terminal profile
+- Prettier for JSON and TypeScript formatting
+- YAML formatting via Red Hat YAML extension
+- Format on save
 
-Top-level directories are:
+Recommended extensions are configured in
+`.devcontainer/devcontainer.json` and include Copilot, ESLint, Prettier,
+GitLens, Error Lens, YAML support, and EditorConfig.
 
-- **personal/**: personal projects
-  - **website/** (formerly frontend)
-  - **gtkappfolder/**
-  - **pagerts/**
-  - **resume/**
-  - **KEYBOARD.md**
-- **uni/**: university projects and coursework
+## First Run
 
-## Usage
-
-1. Open this folder in VS Code
-2. When prompted, click "Reopen in Container"
-3. Wait for the container to build (first time only)
-4. Start developing!
-
-## Verification
-
-After the container starts, run:
+1. Open this folder in VS Code.
+2. Select Reopen in Container when prompted.
+3. Wait for image build and post-create setup to complete.
+4. Verify tooling:
 
 ```bash
-node -v            # Node.js LTS
-npm -v             # npm latest
-git --version      # Git
+node -v
+npm -v
+git --version
+gh --version
 ```
+
+## Security Practices
+
+- Validate all external input.
+- Prefer parameterized database access via trusted libraries/ORMs.
+- Log security-relevant events with clear attribution.
+- Return generic errors to clients and detailed diagnostics to logs.
+- Use defense-in-depth controls.
+- Test security behavior, do not assume it.
+
+## Repository Layout (High Level)
+
+- `personal/`: personal projects
+- `uni/`: university projects and coursework
+- `.devcontainer/`: container build and setup configuration
 
 ## Customization
 
-Edit `devcontainer.json` to:
-
-- Add more VS Code extensions
-- Change port forwarding
-- Modify settings
-- Add post-create commands
-
-Edit `Dockerfile` to:
-
-- Install additional system packages
-- Change tool versions
-- Add more global npm packages
+- Edit `.devcontainer/devcontainer.json` for ports, features, extensions, and
+  editor settings.
+- Edit `.devcontainer/Dockerfile` for OS-level packages and base image changes.
+- Edit `.devcontainer/post-create.sh` for setup steps that should run after
+  container creation.
