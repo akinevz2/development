@@ -23,13 +23,14 @@
 	path = uni/anle
 	url = https://github.com/akinevz2/academic-report-buildscripts.git
 	branch = main
-[submodule "uni/limits-of-computation/whilers/src"]
-	path = uni/limits-of-computation/whilers/src
-	url = https://github.com/jakkos-net/whilers
 [submodule "personal/resume"]
 	path = personal/resume
 	url = https://github.com/akinevz2/resume
 	branch = main
+[submodule "personal/tele-linker"]
+	path = personal/tele-linker
+	url = https://github.com/akinevz2/tele-linker
+	branch = master
 [submodule "uni/2025-project/pdhd"]
 	path = uni/2025-project/pdhd
 	url = https://github.com/akinevz2/2025-project
