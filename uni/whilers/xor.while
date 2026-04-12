@@ -1,0 +1,31 @@
+(* xor.while
+
+  Xor function, given a list  [a,b] where a and b
+  are encoded as booleans (nil is false, anything else is true)
+  This uses the core While language without extensions.
+  One could write true instead of cons nil nil here and false for nil.
+  
+   (c) 2021 Bernhard Reus 
+
+*)
+
+xor read AB {
+    A := hd AB;
+    B := hd tl AB;
+    if A {
+        if B {
+            X := nil
+        }
+        else {
+            X := cons nil nil
+        }
+    }
+    else {
+        if B {
+            X := cons nil nil
+        }
+        else {
+            X := nil
+        }
+    }
+} write X

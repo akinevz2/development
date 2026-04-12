@@ -1,5 +1,6 @@
 {
   // Dotfiles configuration
   "dotfiles": "https://github.com/akinevz2/configs.git",
-  "java.compile.nullAnalysis.mode": "automatic"
+  "java.compile.nullAnalysis.mode": "automatic",
+  "jdk.telemetry.enabled": false
 }

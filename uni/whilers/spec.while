@@ -1,0 +1,35 @@
+(* spec.while
+
+ This is the proof for the s-1-1 theorem (Lecture 10),
+ namely a simple SPECIALIZER FROM WHILE TO WHILE
+ written in WHILE;
+
+ This program’s input is a list [P,S] where
+
+   P is a WHILE program 
+   S is some input data (tree)
+ 
+  It produces as output a new program that uses S
+  as built-in part of the input.
+  It does not do any proper partial evaluation i.e.
+  it does not try to evaluate expressions in P that now contain S.
+  Note that we  use [quote,S] here, which is ok (tree literals) for extended While
+  
+   (c) 2008-21 Bernhard Reus 
+	
+*) 
+
+spec read PS { 		(* input list of form [P, S] *)
+ 
+ P:= hd PS;		(* P is program [X,B,Y] *)
+ S:= hd tl PS;		(* S is input*) X:= hd P;		(* X is input var name of P *)
+ B:= hd tl P;           (* B is body of P *)
+ Y:= hd tl tl P;        (* Y is output var name of P *)
+ (* now assemble the new program from the given parts *)
+ expr:= [@cons, [@quote,S], [@cons, [@var,X], [@quote, nil]]];   (* cons S cons X nil *)
+ newAsg:= [@:=,X,expr ];             (* X:= cons S X *)
+ newB:= cons newAsg B;
+ newProg := [X, newB, Y]     (* build the result program *)
+}
+write newProg
+ 

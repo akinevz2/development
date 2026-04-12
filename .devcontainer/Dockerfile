@@ -9,12 +9,16 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     wget \
+    ripgrep \
     gnupg \
     lsb-release \
     git \
     unzip \
     zip \
     make \
+    stow \
+    pandoc \
+    texlive-latex-extra \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js and npm (LTS version)
