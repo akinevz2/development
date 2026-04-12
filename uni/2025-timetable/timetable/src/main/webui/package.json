@@ -19,6 +19,6 @@
     "xp.css": "0.2.6"
   },
   "devDependencies": {
-    "serve": "^14.0.1"
+    "serve": "^14.2.6"
   }
 }
