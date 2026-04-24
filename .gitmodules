@@ -5,7 +5,7 @@
 	branch = main
 [submodule "personal/pagerts"]
 	path = personal/pagerts
-	url = https://github.com/akinevz2/pagerts
+	url = https://github.com/akinevz/pagerts
 	branch = main
 [submodule "personal/website"]
 	path = personal/website
@@ -34,3 +34,6 @@
 [submodule "uni/2025-project/pdhd"]
 	path = uni/2025-project/pdhd
 	url = https://github.com/akinevz2/2025-project
+[submodule "pagerts"]
+	path = pagerts
+	url = https://github.com/akinevz2/pagerts.git
