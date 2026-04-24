@@ -10,9 +10,28 @@ PARENT_COMMIT_MSG ?= chore: update pagerts submodule pointer
 .PHONY: subrepo-sync subrepo-publish subrepo-pick globbit
 
 subrepo-sync:
-	git submodule set-url $(PAGERTS_PATH) $(PAGERTS_URL)
-	git submodule sync -- $(PAGERTS_PATH)
-	git submodule update --init --remote -- $(PAGERTS_PATH)
+	@set -e; \
+	paths="$$(git config --file .gitmodules --get-regexp '^submodule\..*\.path$$' | awk '{print $$2}' | grep -E '^(personal|uni)(/|$$)' || true)"; \
+	if [ -z "$$paths" ]; then \
+		echo "No submodules found under personal/ or uni/ in .gitmodules"; \
+		exit 0; \
+	fi; \
+	valid_paths=""; \
+	for path in $$paths; do \
+		if git ls-files --error-unmatch "$$path" >/dev/null 2>&1; then \
+			valid_paths="$$valid_paths $$path"; \
+			git submodule sync --recursive -- "$$path"; \
+		else \
+			echo "Skipping stale submodule path $$path (not tracked in index)"; \
+		fi; \
+	done; \
+	if [ -z "$$valid_paths" ]; then \
+		echo "No valid submodule paths found under personal/ or uni/"; \
+		exit 0; \
+	fi; \
+	for path in $$valid_paths; do \
+		git submodule update --init --remote --recursive -- "$$path"; \
+	done
 
 subrepo-pick:
 	@test -n "$(PICK_PATH)" || (echo "Set PICK_PATH, e.g. make subrepo-pick PICK_PATH=personal/pagerts PICK_URL=https://github.com/akinevz2/pagerts"; exit 1)
