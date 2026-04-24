@@ -58,6 +58,9 @@
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
+  "containerEnv": {
+    "MY_CREDENTIALS": "/workspaces/development/.my-credentials"
+  },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git",
     "EDITOR": "code --wait"
@@ -65,8 +68,7 @@
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   "remoteUser": "vscode",
   "runArgs": [
-    "--add-host=ws-cvn:192.168.1.67",
-    "--add-host=ws-cvn.lan:192.168.1.67",
-    "--add-host=ws-cvn.local:192.168.1.67"
+    "--add-host=ws-cvn:10.1.0.1",
+    "--add-host=minifridge:10.1.0.254"
   ]
 }

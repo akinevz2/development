@@ -1,0 +1,2 @@
+# Keep devcontainer files POSIX-safe across Windows/macOS/Linux checkouts.
+.devcontainer/** text eol=lf

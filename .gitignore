@@ -18,3 +18,6 @@ Thumbs.db
 *.swo
 *~
 .vscode/settings.json
+
+# Local credentials (never commit)
+.my-credentials
