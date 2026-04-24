@@ -55,6 +55,7 @@
   // Persistent cache mounts
   "mounts": [],
   "name": "Development Workstation",
+  "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
@@ -65,6 +66,8 @@
     "dotfiles": "https://github.com/akinevz2/configs.git",
     "EDITOR": "code --wait"
   },
+  "containerUser": "vscode",
+  "updateRemoteUserUID": true,
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   "remoteUser": "vscode",
   "runArgs": [

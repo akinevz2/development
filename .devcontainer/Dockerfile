@@ -49,6 +49,8 @@ RUN groupadd --gid $USER_GID $USERNAME \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up environment for non-root user
+RUN mkdir -p /workspaces/development && chown -R $USERNAME:$USERNAME /workspaces
+
 USER $USERNAME
 
-WORKDIR /workspace
+WORKDIR /workspaces/development
