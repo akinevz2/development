@@ -5,7 +5,7 @@
 	branch = main
 [submodule "personal/pagerts"]
 	path = personal/pagerts
-	url = https://github.com/akinevz/pagerts
+	url = https://github.com/akinevz2/pagerts
 	branch = main
 [submodule "personal/website"]
 	path = personal/website
