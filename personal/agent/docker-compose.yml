@@ -1,0 +1,18 @@
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: inventory-agent
+    environment:
+      - LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:11434/v1}
+      - MODEL_NAME=${MODEL_NAME:-qwen3.6:35b-a3b}
+      - INVENTORY_PATH=/data/hardware_inventory.md
+      - CHANGELOG_PATH=/data/hardware_inventory_changelog.md
+    volumes:
+      - ${INVENTORY_DIR:-./data}:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    stdin_open: true
+    tty: true
+    restart: "no"

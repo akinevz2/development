@@ -1,0 +1,28 @@
+{
+  "name": "Hardware Inventory Agent",
+  "dockerComposeFile": ["../docker-compose.yml"],
+  "service": "agent",
+  "workspaceFolder": "/app",
+  "runServices": ["vllm"],
+  "shutdownAction": "stopCompose",
+  "features": {},
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-preview-github-styles"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.wordWrap": "on"
+      }
+    }
+  },
+  "postStartCommand": "echo 'vLLM starting — run: python inventory_agent.py'",
+  "remoteEnv": {
+    "INVENTORY_PATH": "/data/hardware_inventory.md",
+    "CHANGELOG_PATH": "/data/hardware_inventory_changelog.md",
+    "VLLM_BASE_URL": "http://vllm:8000/v1",
+    "MODEL_NAME": "inventory-model"
+  }
+}
