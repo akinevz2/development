@@ -9,39 +9,27 @@ if [ -f "$CREDENTIALS_FILE" ]; then
         git config --global user.name "$GIT_NAME"
         echo "✅ Git credentials configured: $GIT_NAME <$GIT_EMAIL>"
     else
-        echo -e "\033[1;31m"
-        echo "██████████████████████████████████████████████████"
-        echo "██                                              ██"
-        echo "██   ⚠  AUTHENTICATION FAILED                  ██"
-        echo "██   .my-credentials is missing GIT_EMAIL      ██"
-        echo "██   or GIT_NAME. Git is not configured.       ██"
-        echo "██                                              ██"
-        echo "██████████████████████████████████████████████████"
-        echo -e "\033[0m"
-        exit 1
+        echo "⚠ .my-credentials is present but missing GIT_EMAIL or GIT_NAME; skipping git global config."
     fi
 else
-    echo -e "\033[1;31m"
-    echo "██████████████████████████████████████████████████"
-    echo "██                                              ██"
-    echo "██   ⚠  AUTHENTICATION FAILED                  ██"
-    echo "██   .my-credentials not found.                ██"
-    echo "██   Set MY_CREDENTIALS in devcontainer.json   ██"
-    echo "██   Git global config has NOT been set.       ██"
-    echo "██                                              ██"
-    echo "██████████████████████████████████████████████████"
-    echo -e "\033[0m"
-    exit -2307953571
+    echo "⚠ Credentials file not found at MY_CREDENTIALS=$CREDENTIALS_FILE; skipping git global config."
 fi
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo "📂 Restoring dotfiles..."
 if [ ! -d "$HOME/dotfiles" ]; then
-    git clone https://github.com/akinevz2/configs.git "$HOME/dotfiles"
+    if ! git clone https://github.com/akinevz2/configs.git "$HOME/dotfiles"; then
+        echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
+        exit 0
+    fi
 fi
 cd "$HOME/dotfiles"
-git pull origin main
-make stow-shell
+if ! git pull origin main; then
+    echo "⚠ Dotfiles update failed; continuing."
+fi
+if ! make stow-shell; then
+    echo "⚠ Dotfiles stow failed; continuing."
+fi
 echo "✅ Dotfiles restored!"
 
 echo "✅ Environment setup complete!"

@@ -2,11 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  // "image": "mcr.microsoft.com/devcontainers/base:trixie",
-  "build": {
-    "context": ".",
-    "dockerfile": "Dockerfile"
-  },
+  "image": "mcr.microsoft.com/devcontainers/base:latest",
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -30,26 +26,8 @@
       }
     }
   },
-  // Features to add to the dev container. More info: https://containers.dev/features.
-  "features": {
-    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/git:1": {
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/java:1": {
-      "jdkDistro": "open",
-      "version": "latest"
-    },
-    "ghcr.io/devcontainers/features/node:1": {
-      "nodeGypDependencies": true,
-      "version": "lts"
-    }
-  },
+  // Features are optional; keep this minimal and add only what you need later.
+  "features": {},
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
   // Persistent cache mounts
@@ -66,8 +44,6 @@
     "dotfiles": "https://github.com/akinevz2/configs.git",
     "EDITOR": "code --wait"
   },
-  "containerUser": "vscode",
-  "updateRemoteUserUID": true,
-  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  "remoteUser": "vscode"
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true
 }
