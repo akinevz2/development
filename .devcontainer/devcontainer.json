@@ -69,9 +69,5 @@
   "containerUser": "vscode",
   "updateRemoteUserUID": true,
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-  "remoteUser": "vscode",
-  "runArgs": [
-    "--add-host=ws-cvn:10.1.0.1",
-    "--add-host=minifridge:10.1.0.254"
-  ]
+  "remoteUser": "vscode"
 }
