@@ -19,21 +19,12 @@
 	path = uni/2025-report
 	url = https://github.com/akinevz2/2025-report
 	branch = personal
-[submodule "uni/anle"]
-	path = uni/anle
-	url = https://github.com/akinevz2/academic-report-buildscripts.git
-	branch = main
+
 [submodule "personal/resume"]
 	path = personal/resume
 	url = https://github.com/akinevz2/resume
 	branch = main
-[submodule "personal/tele-linker"]
-	path = personal/tele-linker
-	url = https://github.com/akinevz2/tele-linker
-	branch = master
-[submodule "uni/2025-project/pdhd"]
-	path = uni/2025-project/pdhd
-	url = https://github.com/akinevz2/2025-project
-[submodule "pagerts"]
-	path = pagerts
-	url = https://github.com/akinevz2/pagerts.git
+[submodule "uni/rarebert"]
+	path = uni/rarebert
+	url = https://github.com/akinevz2/rarebert
+	branch = main
