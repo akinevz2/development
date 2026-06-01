@@ -1,5 +1,25 @@
 #!/bin/bash
 
+echo "📦 Installing required tools (stow, nodejs, npm) if missing..."
+MISSING_PACKAGES=()
+
+if ! command -v stow >/dev/null 2>&1; then
+    MISSING_PACKAGES+=("stow")
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+    MISSING_PACKAGES+=("nodejs")
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+    MISSING_PACKAGES+=("npm")
+fi
+
+if [ ${#MISSING_PACKAGES[@]} -gt 0 ]; then
+    sudo apt-get update
+    sudo apt-get install -y "${MISSING_PACKAGES[@]}"
+fi
+
 # ── Git credentials ──────────────────────────────────────────────────────────
 CREDENTIALS_FILE="${MY_CREDENTIALS}"
 if [ -f "$CREDENTIALS_FILE" ]; then
@@ -38,5 +58,8 @@ echo "Verifying installations..."
 node -v
 npm -v
 git --version
+java -version
+javac -version
+mvn -version
 
 exit 0

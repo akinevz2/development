@@ -27,11 +27,22 @@
     }
   },
   // Features are optional; keep this minimal and add only what you need later.
-  "features": {},
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "25",
+      "jdkDistro": "tem",
+      "installMaven": true
+    }
+  },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
   // Persistent cache mounts
   "mounts": [],
+  "runArgs": [
+    "--network=slirp4netns:allow_host_loopback=true",
+    "--add-host=minifridge:192.168.1.122",
+    "--add-host=ws-raretower:192.168.137.133"
+  ],
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
