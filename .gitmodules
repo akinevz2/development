@@ -28,3 +28,7 @@
 	path = uni/rarebert
 	url = https://github.com/akinevz2/rarebert
 	branch = main
+[submodule "personal/rarebert"]
+	path = personal/rarebert
+	url = https://github.com/akinevz2/rarebert
+	branch = utilities

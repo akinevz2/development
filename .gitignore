@@ -9,9 +9,6 @@ resume/xp.css/
 # Node modules
 node_modules/
 
-# Local Git worktree checkout for rarebert utilities branch
-personal/rarebert/
-
 # OS files
 .DS_Store
 Thumbs.db
