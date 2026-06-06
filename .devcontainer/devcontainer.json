@@ -49,7 +49,8 @@
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
   "containerEnv": {
-    "MY_CREDENTIALS": "/workspaces/development/.my-credentials"
+    "MY_CREDENTIALS": "/workspaces/development/.my-credentials",
+    "GH_AUTH_ON_CREATE": "0"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git",
