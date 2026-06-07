@@ -21,3 +21,6 @@ Thumbs.db
 
 # Local credentials (never commit)
 .my-credentials
+
+# Ignore all files inside internet/ directory
+internet/*
