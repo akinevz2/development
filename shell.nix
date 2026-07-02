@@ -5,6 +5,7 @@ pkgs.mkShell {
     coreutils
     curl
     git
+    gh
     jq
     ripgrep
     gnugrep
@@ -14,5 +15,8 @@ pkgs.mkShell {
     file
     which
     xz
+    python3
+    uv
+    nodejs
   ];
 }

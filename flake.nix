@@ -17,6 +17,7 @@
             coreutils
             curl
             git
+            gh
             jq
             ripgrep
             gnugrep
@@ -26,6 +27,9 @@
             file
             which
             xz
+            python3
+            uv
+            nodejs
           ];
         };
       });
