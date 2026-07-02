@@ -37,12 +37,15 @@
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
   // Persistent cache mounts
-  "mounts": [],
-  "runArgs": [
-    "--network=slirp4netns:allow_host_loopback=true",
-    "--add-host=minifridge:192.168.1.122",
-    "--add-host=ws-raretower:192.168.137.133"
+  "mounts": [
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly"
   ],
+  "runArgs": [
+    "--network=host",
+    "--add-host=minifridge:127.0.0.1",
+    "--add-host=ws-raretower:10.77.77.1"
+  ],
+  "initializeCommand": "mkdir -p ${localEnv:HOME}/.config/gh",
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
@@ -50,7 +53,8 @@
   // Environment variables
   "containerEnv": {
     "MY_CREDENTIALS": "/workspaces/development/.my-credentials",
-    "GH_AUTH_ON_CREATE": "0"
+    "GH_AUTH_ON_CREATE": "0",
+    "GH_AUTH_PROVIDER": "wsl-host"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git",

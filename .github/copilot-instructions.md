@@ -6,6 +6,73 @@ This devcontainer serves as a personal Unix-based computing platform. Follow the
 
 This is a **persistent development environment** that should be treated like a personal workstation, not a disposable container. All configurations should survive rebuilds.
 
+## Local LLM Infrastructure
+
+### Hosts
+
+| Host | IP | Role |
+|---|---|---|
+| `ws-raretower` | `10.77.77.1` | Cornfield node-1 runner (bare metal, GPU) |
+| `minifridge` | `10.77.77.5` | Primary development machine |
+
+Both hosts are injected via `runArgs` in `devcontainer.json` and are always reachable from inside the container.
+
+### Cornfield Topology Notes
+
+- Local fork branding uses `cornfield` in this workspace (submodule path: `system/cornfield`, remote: `akinevz2/cornfield`).
+- `ws-raretower` is the node-1 runtime host for the cornfield stack.
+- `minifridge` is the day-to-day development and maintenance host.
+- Both nodes should keep the Nix package manager available so an LLM agent can perform system maintenance and reproducible installs.
+- Ongoing gateway objective: include Copilot and Anthropic-backed models as fallback providers for higher-order reasoning when local inference quality is insufficient.
+
+### Endpoints
+
+| Port | Protocol | Service | Notes |
+|---|---|---|---|
+| `11434` | HTTP | Ollama (direct) | Raw Ollama API; use for management ops (model list, pull, delete) |
+| `11444` | HTTP | OpenZiti LLM-gateway | **Primary inference endpoint** — OpenAI-compatible, model-routing aware |
+
+**Default base URL for all new LLM client code:** `http://ws-raretower:11444/v1`
+
+### Model Routing Strategy
+
+The LLM-gateway at `:11444` routes requests by model name. Follow this split:
+
+| Use case | Target model alias | Rationale |
+|---|---|---|
+| **Tool / function calls** | `tools` (small, fast model) | Structured output; latency matters more than reasoning depth |
+| **Generation / thinking** | `think` (large, capable model) | Open-ended reasoning, summaries, code generation |
+| **Embeddings** | `embed` | Dedicated embedding model; never use a chat model for this |
+
+When writing LangChain4j, Ollama Java client, or any OpenAI-SDK code in this repo, default to the `tools` model for anything that invokes functions/tools and the `think` model for chat/completion turns that need reasoning. Do **not** hardcode specific model version strings (e.g. `gemma4:latest`) in application config — use the alias names so the gateway can be reconfigured without touching code.
+
+**Example Quarkus `application.properties` snippet:**
+
+```properties
+# LLM gateway — OpenAI-compatible
+quarkus.langchain4j.openai.base-url=http://ws-raretower:11444/v1
+quarkus.langchain4j.openai.api-key=none
+quarkus.langchain4j.openai.chat-model.model-name=think
+quarkus.langchain4j.openai.embedding-model.model-name=embed
+
+# Override for tool-calling sessions (set programmatically where needed)
+# pdhd.llm.tool-model=tools
+```
+
+### Fallback: Direct Ollama
+
+If the gateway at `:11444` is unavailable, fall back to direct Ollama at `http://ws-raretower:11434`. The Ollama API is a subset of OpenAI-compatible, so the same client code works with a URL swap. Avoid hardcoding port 11434 in new code; prefer the gateway.
+
+### Connectivity Check
+
+```bash
+# Gateway health
+curl -s http://ws-raretower:11444/v1/models | jq '.data[].id'
+
+# Direct Ollama fallback
+curl -s http://ws-raretower:11434/api/tags | jq '.models[].name'
+```
+
 ## Dotfiles Management
 
 - **Primary dotfiles repo**: `https://github.com/akinevz2/configs.git`
@@ -77,6 +144,10 @@ These are mounted from host and survive rebuilds:
    ```
 
 ## Services & Daemons
+
+### LLM Gateway (ws-raretower:11444)
+
+The OpenZiti LLM-gateway runs on the host machine and is available as long as `ws-raretower` is reachable (it is injected at container start via `--add-host`). No daemon management is needed inside the container. If the gateway is down, the Ollama fallback at `:11434` is always available.
 
 ### Cloudflare WARP
 
@@ -173,6 +244,8 @@ make stow-shell
 
 - Cloudflare WARP CLI
 - curl, wget
+- OpenZiti LLM-gateway at `ws-raretower:11444` (OpenAI-compatible, model-routing)
+- Ollama at `ws-raretower:11434` (direct, management only)
 
 ### VS Code Extensions
 

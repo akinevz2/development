@@ -122,6 +122,12 @@ install_declared_local_npm_packages() {
 }
 
 ensure_github_cli_auth() {
+    if [ "${GH_AUTH_PROVIDER:-}" = "wsl-host" ]; then
+        echo "✅ Skipping in-container gh auth bootstrap (GH_AUTH_PROVIDER=wsl-host)."
+        echo "   Authenticate once on the WSL host; this container reads ~/.config/gh via bind mount."
+        return
+    fi
+
     if ! command -v gh >/dev/null 2>&1; then
         echo "⚠ GitHub CLI is not available; skipping gh auth bootstrap."
         return
