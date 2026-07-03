@@ -24,3 +24,7 @@ Thumbs.db
 
 # Ignore all files inside internet/ directory
 internet/*
+
+# Local workspace-only subtrees
+personal/rarebert/
+system/komorebi/
