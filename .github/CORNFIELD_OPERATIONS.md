@@ -60,3 +60,12 @@ curl -s http://ws-raretower:11444/v1/models | jq '.data[].id'
 # Direct Ollama fallback visibility
 curl -s http://ws-raretower:11434/api/tags | jq '.models[].name'
 ```
+
+## Minifridge Rebuild Command
+
+Use the cornfield-branded path (not the legacy `system/turnstone` path):
+
+```bash
+podman compose -f system/cornfield/deploy/minifridge-node.compose.yaml build \
+	&& podman compose -f system/cornfield/deploy/minifridge-node.compose.yaml up -d
+```
