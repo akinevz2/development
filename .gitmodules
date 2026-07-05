@@ -11,10 +11,6 @@
 	path = personal/website
 	url = https://github.com/akinevz2/frontend
 	branch = main
-[submodule "personal/blog"]
-	path = personal/blog
-	url = https://github.com/akinevz2/frontend
-	branch = blog-posts
 [submodule "uni/2025-report"]
 	path = uni/2025-report
 	url = https://github.com/akinevz2/2025-report

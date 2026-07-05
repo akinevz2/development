@@ -9,7 +9,6 @@ DECLARED_SUBMODULES=(
     "personal/gtkappfolder|https://github.com/akinevz2/gtkappfolder|main"
     "personal/pagerts|https://github.com/akinevz2/pagerts|main"
     "personal/website|https://github.com/akinevz2/frontend|main"
-    "personal/blog|https://github.com/akinevz2/frontend|blog-posts"
     "personal/resume|https://github.com/akinevz2/resume|main"
     "personal/rarebert|https://github.com/akinevz2/rarebert|utilities"
     "uni/2025-report|https://github.com/akinevz2/2025-report|personal"
@@ -121,6 +120,15 @@ install_declared_local_npm_packages() {
     done
 }
 
+install_local_cli_helpers() {
+    echo "🧰 Installing local CLI helpers..."
+
+    mkdir -p "$HOME/.local/bin"
+    install -m 0755 "$WORKSPACE_ROOT/.devcontainer/bin/cf-purge" "$HOME/.local/bin/cf-purge"
+
+    echo "✅ Local CLI helpers installed."
+}
+
 ensure_github_cli_auth() {
     if [ "${GH_AUTH_PROVIDER:-}" = "wsl-host" ]; then
         echo "✅ Skipping in-container gh auth bootstrap (GH_AUTH_PROVIDER=wsl-host)."
@@ -183,6 +191,7 @@ fi
 echo "✅ Dotfiles restored!"
 
 install_declared_local_npm_packages
+install_local_cli_helpers
 ensure_github_cli_auth
 
 echo "✅ Environment setup complete!"
