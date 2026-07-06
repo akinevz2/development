@@ -3,6 +3,10 @@
 	path = personal/gtkappfolder
 	url = https://github.com/akinevz2/gtkappfolder
 	branch = main
+[submodule "personal/graphbrowser"]
+	path = personal/graphbrowser
+	url = https://github.com/akinevz2/graphbrowser
+	branch = main
 [submodule "personal/pagerts"]
 	path = personal/pagerts
 	url = https://github.com/akinevz2/pagerts
@@ -14,7 +18,7 @@
 [submodule "uni/2025-report"]
 	path = uni/2025-report
 	url = https://github.com/akinevz2/2025-report
-	branch = personal
+	branch = main
 
 [submodule "personal/resume"]
 	path = personal/resume
@@ -24,6 +28,3 @@
 	path = uni/rarebert
 	url = https://github.com/akinevz2/rarebert
 	branch = main
-[submodule "personal/personal/pagerts"]
-	path = personal/personal/pagerts
-	url = https://github.com/akinevz2/pagerts
