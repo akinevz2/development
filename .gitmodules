@@ -24,6 +24,6 @@
 	path = uni/rarebert
 	url = https://github.com/akinevz2/rarebert
 	branch = main
-[submodule "system/cornfield"]
-	path = system/cornfield
-	url = https://github.com/akinevz2/cornfield.git
+[submodule "personal/personal/pagerts"]
+	path = personal/personal/pagerts
+	url = https://github.com/akinevz2/pagerts
