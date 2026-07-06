@@ -28,3 +28,4 @@ internet/*
 # Local workspace-only subtrees
 personal/rarebert/
 system/komorebi/
+kine_wsl_id_ed25519.pub

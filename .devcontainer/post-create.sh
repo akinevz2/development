@@ -120,11 +120,15 @@ install_declared_local_npm_packages() {
     done
 }
 
+todo() {
+    echo "⚠ TODO: Implement more functional package helpers."
+}
+
 install_local_cli_helpers() {
     echo "🧰 Installing local CLI helpers..."
 
     mkdir -p "$HOME/.local/bin"
-    install -m 0755 "$WORKSPACE_ROOT/.devcontainer/bin/cf-purge" "$HOME/.local/bin/cf-purge"
+    todo
 
     echo "✅ Local CLI helpers installed."
 }

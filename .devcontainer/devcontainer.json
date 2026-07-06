@@ -38,12 +38,8 @@
   "forwardPorts": [],
   // Persistent cache mounts
   "mounts": [
-    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly"
-  ],
-  "runArgs": [
-    "--network=host",
-    "--add-host=minifridge:127.0.0.1",
-    "--add-host=ws-raretower:10.77.77.1"
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly",
+    "source=${localEnv:HOME}/.ssh/id_ed25519.pub,target=/workspaces/development/kine_wsl_id_ed25519.pub,type=bind,readonly"
   ],
   "initializeCommand": "mkdir -p ${localEnv:HOME}/.config/gh",
   "name": "Development Workstation",
