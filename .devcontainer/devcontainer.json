@@ -17,41 +17,41 @@
         "streetsidesoftware.code-spell-checker",
         "usernamehw.errorlens",
         "GitHub.copilot",
-        "GitHub.copilot-chat"
+        "GitHub.copilot-chat",
+        "scalameta.metals",
+        "scala-lang.scala"
       ],
       "settings": {
         "editor.formatOnSave": true,
         "files.eol": "\n",
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "metals.sbtScript": "sbt",
+        "metals.showInferredType": true
       }
     }
   },
   // Features are optional; keep this minimal and add only what you need later.
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
-      "version": "25",
-      "jdkDistro": "tem",
+      "version": "21",
+      "jdkDistro": "open",
       "installMaven": true
+    },
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "latest",
+      "profile": "default"
     }
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
   // Persistent cache mounts
-  "mounts": [
-    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly",
-    "source=${localEnv:HOME}/.ssh/id_ed25519.pub,target=/workspaces/development/kine_wsl_id_ed25519.pub,type=bind,readonly",
-    "source=${localEnv:HOME}/.ssh/devcontainer-agent.sock,target=/tmp/ssh-agent.sock,type=bind"
-  ],
-  "initializeCommand": "bash -lc 'mkdir -p \"${HOME}/.config/gh\" \"${HOME}/.ssh\"; AGENT_SOURCE=\"\"; if [ -n \"${SSH_AUTH_SOCK:-}\" ] && [ -S \"${SSH_AUTH_SOCK}\" ]; then AGENT_SOURCE=\"${SSH_AUTH_SOCK}\"; else AGENT_SOURCE=$(find /tmp -maxdepth 3 -type s -path \"/tmp/ssh-*/agent.*\" 2>/dev/null | head -n 1); fi; if [ -n \"${AGENT_SOURCE}\" ] && [ -S \"${AGENT_SOURCE}\" ]; then ln -snf \"${AGENT_SOURCE}\" \"${HOME}/.ssh/devcontainer-agent.sock\"; else : > \"${HOME}/.ssh/devcontainer-agent.sock\"; fi'",
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh && bash -lc 'source \"$SDKMAN_DIR/bin/sdkman-init.sh\" && (sdk install sbt 1.10.2 || true) && (sdk install scala 3.6.2 || true)'",
   // Environment variables
   "containerEnv": {
-    "MY_CREDENTIALS": "/workspaces/development/.my-credentials",
-    "GH_AUTH_ON_CREATE": "0",
-    "GH_AUTH_PROVIDER": "wsl-host"
+    "MY_CREDENTIALS": "/workspaces/development/.my-credentials"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git",
