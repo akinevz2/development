@@ -31,3 +31,6 @@
 [submodule "system/lightdni-jssas-toggle"]
 	path = system/lightdni-jssas-toggle
 	url = https://github.com/akinevz2/lightdni-jssas-toggle
+[submodule "akinevz-dotfiles"]
+	path = akinevz-dotfiles
+	url = https://github.com/akinevz2/configs
