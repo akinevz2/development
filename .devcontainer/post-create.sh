@@ -331,3 +331,5 @@ javac -version
 mvn -version
 
 exit 0
+
+echo "Please view live changelog.ws"

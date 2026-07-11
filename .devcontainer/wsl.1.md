@@ -1,4 +1,5 @@
 ```json
+0. fix lightdni-jssas-toggle
 // please ignore & collapse this section on future visits
 1. Confirm target architecture
 2. Windows 11 + WSL2 + WSLg.
