@@ -1,54 +1,13 @@
-FROM ubuntu:latest
+FROM mcr.microsoft.com/devcontainers/base:bookworm
 
-# Avoid warnings by switching to noninteractive
-ENV DEBIAN_FRONTEND=noninteractive
+ARG USERNAME=kine
 
-# Configure apt and install base packages
-RUN apt-get update && apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    wget \
-    ripgrep \
-    gnupg \
-    lsb-release \
-    git \
-    unzip \
-    zip \
-    sudo \
-    make \
-    stow \
-    pandoc \
-    git-lfs \
-    texlive-latex-extra \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Node.js and npm (LTS version)
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-    apt-get install -y nodejs && \
-    npm install -g npm@latest && \
-    rm -rf /var/lib/apt/lists/*
-
-# Install essential development tools
-
-# Set the default shell to bash
-ENV SHELL=/bin/bash
-
-# Switch back to dialog for any ad-hoc use of apt-get
-ENV DEBIAN_FRONTEND=dialog
-
-# Create a non-root user (optional but recommended)
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-# RUN groupadd --gid $USER_GID $USERNAME 
-# RUN useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
-#     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-#     && chmod 0440 /etc/sudoers.d/$USERNAME
-
-# RUN mkdir -p /workspaces/development && chown -R $USERNAME:$USERNAME /workspaces
-
-# USER $USERNAME
+RUN groupmod --new-name "${USERNAME}" vscode \
+    && usermod --login "${USERNAME}" --home "/home/${USERNAME}" --move-home vscode \
+    && if [ -f /etc/sudoers.d/vscode ]; then \
+        sed "s/^vscode /${USERNAME} /" /etc/sudoers.d/vscode > "/etc/sudoers.d/${USERNAME}"; \
+        chmod 0440 "/etc/sudoers.d/${USERNAME}"; \
+        rm /etc/sudoers.d/vscode; \
+    fi
 
 WORKDIR /workspaces/development

@@ -2,7 +2,13 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/base:latest",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "USERNAME": "kine"
+    }
+  },
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -48,7 +54,7 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh && bash -lc 'source \"$SDKMAN_DIR/bin/sdkman-init.sh\" && (sdk install sbt 1.10.2 || true) && (sdk install scala 3.6.2 || true)'",
+  "postCreateCommand": "bash .devcontainer/post-create.sh && bash -lc 'if [ -n \"${SDKMAN_DIR:-}\" ] && [ -s \"$SDKMAN_DIR/bin/sdkman-init.sh\" ]; then source \"$SDKMAN_DIR/bin/sdkman-init.sh\" && (sdk install sbt 1.10.2 || true) && (sdk install scala 3.6.2 || true); else echo \"SDKMAN not found; skipping sbt/scala install.\"; fi'",
   // Environment variables
   "containerEnv": {
     "MY_CREDENTIALS": "/workspaces/development/.my-credentials"
@@ -58,6 +64,7 @@
     "EDITOR": "code --wait",
     "SSH_AUTH_SOCK": "/tmp/ssh-agent.sock"
   },
-  "remoteUser": "vscode",
+  "containerUser": "kine",
+  "remoteUser": "kine",
   "updateRemoteUserUID": true
 }

@@ -21,7 +21,7 @@ DECLARED_LOCAL_NPM_PACKAGES=(
 )
 
 install_missing_apt_packages() {
-    echo "📦 Installing required tools (stow, nodejs, npm, gh) if missing..."
+    echo "📦 Installing required tools (stow, nodejs, npm, gh, vim, neovim) if missing..."
     local missing_packages=()
 
     if ! command -v stow >/dev/null 2>&1; then
@@ -40,10 +40,36 @@ install_missing_apt_packages() {
         missing_packages+=("gh")
     fi
 
+    if ! command -v vim >/dev/null 2>&1; then
+        missing_packages+=("vim")
+    fi
+
+    if ! command -v nvim >/dev/null 2>&1; then
+        missing_packages+=("neovim")
+    fi
+
     if [ ${#missing_packages[@]} -gt 0 ]; then
         sudo apt-get update
         sudo apt-get install -y "${missing_packages[@]}"
     fi
+}
+
+install_copilot_nvim_link() {
+    local vim_plugin="$HOME/configs/vim/.vim/pack/github/start/copilot.vim"
+    local nvim_plugin="$HOME/.local/share/nvim/site/pack/github/start/copilot.vim"
+
+    if [ ! -d "$vim_plugin" ]; then
+        echo "❌ copilot.vim submodule is missing: $vim_plugin" >&2
+        return 1
+    fi
+
+    if [ -e "$nvim_plugin" ] && [ ! -L "$nvim_plugin" ]; then
+        echo "❌ Neovim plugin path already exists and is not a symlink: $nvim_plugin" >&2
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$nvim_plugin")"
+    ln -sfn "$vim_plugin" "$nvim_plugin"
 }
 
 gitmodules_contains_path() {
@@ -262,18 +288,30 @@ fi
 # ─────────────────────────────────────────────────────────────────────────────
 
 echo "📂 Restoring dotfiles..."
-if [ ! -d "$HOME/dotfiles" ]; then
-    if ! git clone https://github.com/akinevz2/configs.git "$HOME/dotfiles"; then
+if [ ! -d "$HOME/configs" ]; then
+    if ! git clone --recurse-submodules https://github.com/akinevz2/configs.git "$HOME/configs"; then
         echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
         exit 0
     fi
 fi
-cd "$HOME/dotfiles"
-if ! git pull origin main; then
+if [ ! -d "$HOME/configs/.git" ]; then
+    echo "❌ Dotfiles path is not a Git checkout: $HOME/configs" >&2
+    exit 1
+fi
+cd "$HOME/configs"
+if ! git pull --ff-only origin main; then
     echo "⚠ Dotfiles update failed; continuing."
 fi
+git submodule sync --recursive
+git submodule update --init --recursive
 if ! make stow-shell; then
     echo "⚠ Dotfiles stow failed; continuing."
+fi
+if ! make stow-vim; then
+    echo "⚠ Vim dotfiles stow failed; continuing."
+fi
+if ! install_copilot_nvim_link; then
+    echo "⚠ copilot.vim link setup failed; continuing without Neovim Copilot symlink."
 fi
 echo "✅ Dotfiles restored!"
 

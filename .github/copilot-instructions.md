@@ -253,7 +253,7 @@ See `.devcontainer/devcontainer.json` for the full list
 
 ## Security Notes
 
-- This container runs as `vscode` user (non-root)
+- This container runs as `kine` user (non-root)
 - Sudo is available for system operations
 - Docker socket is accessible (Docker-in-Docker)
 - WARP daemon requires root privileges
