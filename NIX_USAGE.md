@@ -22,3 +22,4 @@ can use consistent package tooling.
 
 - Keep this config in source control so all agent runs share the same package baseline.
 - If additional tools are needed, add them to `flake.nix` and `shell.nix` together.
+- For content workflows (such as blog post manipulation), never source notes from `/nix/store`.
