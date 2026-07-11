@@ -28,3 +28,6 @@
 	path = uni/rarebert
 	url = https://github.com/akinevz2/rarebert
 	branch = main
+[submodule "system/lightdni-jssas-toggle"]
+	path = system/lightdni-jssas-toggle
+	url = https://github.com/akinevz2/lightdni-jssas-toggle
