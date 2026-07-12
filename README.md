@@ -8,9 +8,11 @@ VS Code Dev Containers.
 - Base image: Debian Bookworm slim
 - Build source: `.devcontainer/Dockerfile`
 - Devcontainer features:
-  - Node.js LTS
   - Git (latest)
   - GitHub CLI (latest)
+- Post-create runtime bootstrap:
+  - `nvm` via the upstream install script (`v0.40.5`)
+  - Node.js LTS via `nvm install --lts`
 - Forwarded ports: 8080 and 8081
 - Default remote user: `vscode`
 
@@ -54,6 +56,7 @@ GitLens, Error Lens, YAML support, and EditorConfig.
 4. Verify tooling:
 
 ```bash
+nvm --version
 node -v
 npm -v
 git --version

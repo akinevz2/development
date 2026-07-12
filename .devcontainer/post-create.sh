@@ -20,20 +20,15 @@ DECLARED_LOCAL_NPM_PACKAGES=(
     "personal/pagerts|@types/node @types/jest"
 )
 
+NVM_VERSION="v0.40.5"
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+
 install_missing_apt_packages() {
-    echo "📦 Installing required tools (stow, nodejs, npm, gh, vim, neovim) if missing..."
+    echo "📦 Installing required tools (stow, gh, vim, neovim) if missing..."
     local missing_packages=()
 
     if ! command -v stow >/dev/null 2>&1; then
         missing_packages+=("stow")
-    fi
-
-    if ! command -v node >/dev/null 2>&1; then
-        missing_packages+=("nodejs")
-    fi
-
-    if ! command -v npm >/dev/null 2>&1; then
-        missing_packages+=("npm")
     fi
 
     if ! command -v gh >/dev/null 2>&1; then
@@ -52,6 +47,32 @@ install_missing_apt_packages() {
         sudo apt-get update
         sudo apt-get install -y "${missing_packages[@]}"
     fi
+}
+
+ensure_nvm_loaded() {
+    if [ -s "$NVM_DIR/nvm.sh" ]; then
+        # shellcheck disable=SC1090
+        . "$NVM_DIR/nvm.sh"
+        return 0
+    fi
+
+    return 1
+}
+
+install_nvm() {
+    echo "📦 Ensuring nvm-managed Node.js is available..."
+
+    if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+        curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" | bash
+    fi
+
+    ensure_nvm_loaded
+
+    nvm install --lts
+    nvm alias default 'lts/*'
+    nvm use --lts >/dev/null
+
+    echo "✅ nvm-managed Node.js is available."
 }
 
 install_copilot_nvim_link() {
@@ -186,6 +207,7 @@ ensure_github_cli_auth() {
 }
 
 install_missing_apt_packages
+install_nvm
 register_declared_submodules
 
 # ── Credentials digest ───────────────────────────────────────────────────────
