@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/base:bookworm
 
-ARG USERNAME=vscode
+ARG USER_HOME=/home/vscode
 
 WORKDIR /workspaces/development
