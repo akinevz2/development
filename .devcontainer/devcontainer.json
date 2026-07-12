@@ -6,7 +6,7 @@
     "dockerfile": "Dockerfile",
     "context": "..",
     "args": {
-      "USERNAME": "kine"
+      "USERNAME": "vscode"
     }
   },
   // Configure tool-specific properties.
@@ -64,7 +64,7 @@
     "EDITOR": "code --wait",
     "SSH_AUTH_SOCK": "/tmp/ssh-agent.sock"
   },
-  "containerUser": "kine",
-  "remoteUser": "kine",
+  "containerUser": "vscode",
+  "remoteUser": "vscode",
   "updateRemoteUserUID": true
 }

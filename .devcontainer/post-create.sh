@@ -44,8 +44,8 @@ install_missing_apt_packages() {
     fi
 
     if [ ${#missing_packages[@]} -gt 0 ]; then
-        sudo apt-get update
-        sudo apt-get install -y "${missing_packages[@]}"
+        apt-get update
+        echo apt-get install -y "${missing_packages[@]}"
     fi
 }
 
