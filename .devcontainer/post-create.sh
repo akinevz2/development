@@ -3,7 +3,8 @@
 set -euo pipefail
 
 # default to ${USER} if set outside of devcontainer
-USER_HOME="/home/${USER:-kine}"
+USER_HOME="/home/kine"
+export USER_HOME
 
 if [ "$USER_HOME" = "/home/root" ]; then
     echo "❌ User home directory is root, skipping: $USER_HOME" >&2

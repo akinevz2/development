@@ -2,7 +2,9 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "ubuntu",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -35,6 +37,14 @@
   },
   // Features are optional; keep this minimal and add only what you need later.
   "features": {
+    "ghcr.io/devcontainers-extra/features/zsh-plugins:0.0.5": {
+      "username": "kine",
+      "plugins": [
+        "git",
+        "zsh-autosuggestions",
+        "zsh-syntax-highlighting"
+      ]
+    },
     "ghcr.io/devcontainers/features/java:1": {
       "version": "21",
       "jdkDistro": "open",
