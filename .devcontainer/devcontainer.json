@@ -37,14 +37,6 @@
   },
   // Features are optional; keep this minimal and add only what you need later.
   "features": {
-    "ghcr.io/devcontainers-extra/features/zsh-plugins:0.0.5": {
-      "username": "kine",
-      "plugins": [
-        "git",
-        "zsh-autosuggestions",
-        "zsh-syntax-highlighting"
-      ]
-    },
     "ghcr.io/devcontainers/features/java:1": {
       "version": "21",
       "jdkDistro": "open",
@@ -69,6 +61,6 @@
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git"
   },
-  "containerUser": "kine",
+  "containerUser": "vscode",
   "updateRemoteUserUID": true
 }

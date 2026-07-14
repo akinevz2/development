@@ -1,20 +1,24 @@
 # Use Ubuntu as base image
-FROM ubuntu:latest
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 # Set non-interactive frontend to avoid prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Create the kine user with a home directory
-RUN useradd -m -s /bin/bash kine && \
-    # Add kine to sudo group (optional, for admin privileges)
-    usermod -aG sudo kine && \
-    # Set proper permissions on home directory
-    chmod 755 /home/kine
-
-# Switch to the kine user as default
-USER kine
-WORKDIR /home/kine
-
-# Set the environment to make sure USER is set properly
-ENV USER=kine
-ENV HOME=/home/kine
+# Update apt and install packages with explicit permissions handling
+RUN echo "Updating package lists..." && \
+    apt-get update && \
+    echo "Installing required packages..." && \
+    apt-get install -y \
+        git \
+        make \
+        build-essential \
+        sudo \
+        stow \
+        gh \
+        vim \
+        npm \
+        neovim \
+        nodejs \
+        git-lfs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # default to ${USER} if set outside of devcontainer
-USER_HOME="/home/kine"
+USER_HOME="/home/vscode"
 export USER_HOME
 
 if [ "$USER_HOME" = "/home/root" ]; then
@@ -27,7 +27,7 @@ DECLARED_SUBMODULES=(
 
 # Each entry is: relative-path|space-separated-packages
 DECLARED_LOCAL_NPM_PACKAGES=(
-    "personal/pagerts|@types/node @types/jest"
+    "personal/pagerts|@types/node"
 )
 
 NVM_VERSION="v0.40.5"
@@ -38,103 +38,10 @@ if [ -f ".devcontainer/install-extra.sh" ]; then
     source .devcontainer/install-extra.sh
 else
     echo "⚠ install-extra.sh not found, defining fallback functions..."
-
-    install_missing_apt_packages() {
-        echo "📦 Installing required tools (stow, gh, vim, neovim) if missing..."
-        local missing_packages=()
-
-        if ! command -v stow >/dev/null 2>&1; then
-            missing_packages+=("stow")
-        fi
-
-        if ! command -v gh >/dev/null 2>&1; then
-            missing_packages+=("gh")
-        fi
-
-        if ! command -v vim >/dev/null 2>&1; then
-            missing_packages+=("vim")
-        fi
-
-        if ! command -v nvim >/dev/null 2>&1; then
-            missing_packages+=("neovim")
-        fi
-
-        if [ ${#missing_packages[@]} -gt 0 ]; then
-            apt-get update
-            apt-get install -y "${missing_packages[@]}"
-        fi
-    }
-fi
-
-install_nvm() {
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     
-    nvm install node
-    nvm use node
-    nvm install --lts
-    nvm use --lts
-
-    echo "📦 Ensuring nvm-managed Node.js is available..."
-}
-
-
-ensure_nvm_loaded() {
-    if [ -s "$NVM_DIR/nvm.sh" ]; then
-        # shellcheck disable=SC1090
-        . "$NVM_DIR/nvm.sh"
-        return 0
-    fi
-
-    return 1
-}
-
-# install_nvm() {
-#     echo "📦 Ensuring nvm-managed Node.js is available..."
-
-#     if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-#         curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh" | bash
-#     fi
-
-#     ensure_nvm_loaded
-
-#     nvm install --lts
-#     nvm alias default 'lts/*'
-#     nvm use --lts >/dev/null
-
-#     echo "✅ nvm-managed Node.js is available."
-# }
-
-install_copilot_nvim_link() {
-    local vim_plugin="$HOME/configs/vim/.vim/pack/github/start/copilot.vim"
-    local nvim_plugin="$HOME/.local/share/nvim/site/pack/github/start/copilot.vim"
-
-    if [ ! -d "$vim_plugin" ]; then
-        echo "❌ copilot.vim submodule is missing: $vim_plugin" >&2
-        return 1
-    fi
-
-    if [ -e "$nvim_plugin" ] && [ ! -L "$nvim_plugin" ]; then
-        echo "❌ Neovim plugin path already exists and is not a symlink: $nvim_plugin" >&2
-        return 1
-    fi
-
-    mkdir -p "$(dirname "$nvim_plugin")"
-    ln -sfn "$vim_plugin" "$nvim_plugin"
-}
-
-gitmodules_contains_path() {
-    local submodule_path="$1"
-
-    git config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null \
-        | awk '{print $2}' \
-        | grep -Fxq "$submodule_path"
-}
-
-todo() {
-    echo "⚠ TODO: Implement more functional package helpers."
-}
+    # Note: Package installations now handled in Dockerfile
+    # install_missing_apt_packages() function removed as packages are installed in Dockerfile
+fi
 
 install_local_cli_helpers() {
     echo "🧰 Installing local CLI helpers..."
@@ -192,14 +99,6 @@ ensure_github_cli_auth() {
     fi
 }
 
-install_missing_apt_packages
-
-# ── Credentials digest ───────────────────────────────────────────────────────
-# Credentials file format: a 2-line tuple
-#   line 1: full name (e.g. "Kirill <kine> Nevzorov")
-#   line 2: email address (e.g. "akinevz@outlook.com")
-# This is parsed directly (never sourced as shell code) and applied to git,
-# shell environment, and GitHub CLI context.
 CREDENTIALS_FILE="${MY_CREDENTIALS:-}"
 
 read_credentials_tuple() {
@@ -301,32 +200,48 @@ if [ ! -d "$USER_HOME/dots" ]; then
         exit 0
     fi
 fi
-if [ ! -d "$USER_HOME/dots/.git" ]; then
-    echo "❌ Dotfiles path is not a Git checkout: $USER_HOME/dots" >&2
-    exit 1
-fi
-cd "$USER_HOME/dots"
-if ! git pull --ff-only origin main; then
-    echo "⚠ Dotfiles update failed; continuing."
-fi
+
 git submodule sync --recursive
-git submodule update --init --recursive
+
+# Handle potential submodule issues by attempting fallback strategies
+if [ $(git submodule update --init --recursive) -ne 0 ]; then
+    echo "⚠ Submodule initialization failed, attempting fallback strategies..."
+    
+    # Try to reset and reinitialize submodules
+    for submodule in "${DECLARED_SUBMODULES[@]}"; do
+        local path=$(echo "$submodule" | cut -d'|' -f1)
+        if [ -d "$path" ]; then
+            echo "Attempting to synchronize $path with origin..."
+            
+            # Try origin/main first
+            if git -C "$path" fetch origin main 2>/dev/null; then
+                git -C "$path" reset --hard origin/main 2>/dev/null && echo "✅ Reset $path to origin/main"
+            elif git -C "$path" fetch origin master 2>/dev/null; then
+                # If main fails, try master
+                git -C "$path" reset --hard origin/master 2>/dev/null && echo "✅ Reset $path to origin/master"
+            else
+                echo "⚠ Could not fetch from origin/main or origin/master for $path"
+            fi
+            
+            # Show last commit and unstaged files if possible
+            if [ -d "$path/.git" ]; then
+                echo "Last commit in $path:"
+                git -C "$path" log --oneline -1 2>/dev/null || echo "No commits found"
+                echo "Unstaged changes in $path:"
+                git -C "$path" status --porcelain 2>/dev/null || echo "No status available"
+            fi
+        fi
+    done
+fi
+
+cd "$USER_HOME/dots"
 if ! make stow-shell; then
     echo "⚠ Dotfiles stow failed; continuing."
 fi
 if ! make stow-vim; then
     echo "⚠ Vim dotfiles stow failed; continuing."
 fi
-if ! install_copilot_nvim_link; then
-    echo "⚠ copilot.vim link setup failed; continuing without Neovim Copilot symlink."
-fi
 echo "✅ Dotfiles restored!"
-
-install_nvm
-install_declared_local_npm_packages
-install_local_cli_helpers
-ensure_github_cli_auth
-
 echo "✅ Environment setup complete!"
 echo ""
 echo "Verifying installations..."

@@ -58,3 +58,69 @@ globbit:
 		git submodule foreach --recursive 'branch=$$(git symbolic-ref --short -q HEAD); if [ -z "$$branch" ]; then echo "[$$name] detached HEAD, skipping push"; elif git diff --quiet && git diff --cached --quiet; then git push origin $$branch; else echo "[$$name] uncommitted changes:"; git status --short; fi'; \
 		git push origin $(PARENT_BRANCH); \
 	fi
+
+# Makefile for Scala installation on Ubuntu
+
+# Variables
+SCALA_VERSION ?= 2.13.10
+SCALA_DIR = /opt/scala
+SCALA_TAR = scala-$(SCALA_VERSION).tgz
+SCALA_URL = https://downloads.lightbend.com/scala/$(SCALA_VERSION)/$(SCALA_TAR)
+
+# Default target
+.PHONY: all install-scala clean
+
+all: install-scala
+
+# Install Scala compiler
+install-scala:
+	@sudo apt-get install wget
+	@echo "Installing Scala $(SCALA_VERSION)..."
+	@if ! command -v java &> /dev/null; then \
+		echo "Java is required. Installing OpenJDK..."; \
+		sudo apt update && sudo apt install -y openjdk-21-jdk; \
+	fi
+	@echo "Downloading Scala $(SCALA_VERSION)..."
+	wget -O $(SCALA_TAR) $(SCALA_URL)
+	@echo "Extracting Scala..."
+	sudo mkdir -p $(SCALA_DIR)
+	sudo tar -xzf $(SCALA_TAR) -C $(SCALA_DIR) --strip-components=1
+	@echo "Setting up environment variables..."
+	sudo echo 'export SCALA_HOME=$(SCALA_DIR)' >> /etc/environment
+	sudo echo 'export PATH=$$PATH:$(SCALA_DIR)/bin' >> /etc/environment
+	@echo "Cleaning up..."
+	rm -f $(SCALA_TAR)
+	@echo "Scala installation complete!"
+	@echo "Please run 'source /etc/environment' or relogin to use scalac."
+
+# Clean installation files
+clean:
+	@echo "Cleaning up..."
+	sudo rm -rf $(SCALA_DIR)
+	sudo sed -i '/SCALA_HOME/d' /etc/environment
+	sudo sed -i '/scala/d' /etc/environment
+	@echo "Cleanup complete."
+
+# Verify installation
+verify: 
+	@echo "Verifying Scala installation..."
+	@if command -v scalac &> /dev/null; then \
+		echo "✓ Scala compiler found:"; \
+		scalac -version; \
+	else \
+		echo "✗ Scala compiler not found. Please check installation."; \
+	fi
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  install-scala  - Install Scala compiler (default)"
+	@echo "  verify         - Verify installation"
+	@echo "  clean          - Remove Scala installation"
+	@echo "  help           - Show this help"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make install-scala     # Install Scala"
+	@echo "  make verify            # Check installation"
+	@echo "  make clean             # Remove Scala"
+	@echo "  make help              # Show help"
