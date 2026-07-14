@@ -10,8 +10,6 @@ if [ "$USER_HOME" = "/home/root" ]; then
     exit 1
 fi
 
-MY_CREDENTIALS=".my-credentials"  # Relative to $USER_HOME; can be overridden by MY_CREDENTIALS env var
-
 echo "🛠 Running post-create script in devcontainer for user: $USER_HOME"
 # Each entry is: relative-path|git-url|branch
 DECLARED_SUBMODULES=(

@@ -2,13 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/debian
 {
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "build": {
-    "dockerfile": "Dockerfile",
-    "context": "..",
-    "args": {
-      "USERNAME": "vscode"
-    }
-  },
+  "image": "ubuntu",
   // Configure tool-specific properties.
   "customizations": {
     "vscode": {
@@ -25,7 +19,10 @@
         "GitHub.copilot",
         "GitHub.copilot-chat",
         "scalameta.metals",
-        "scala-lang.scala"
+        "scala-lang.scala",
+        "Continue.continue",
+        "Ollama.ollama",
+        "sst-dev.opencode"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -54,17 +51,14 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh && bash -lc 'if [ -n \"${SDKMAN_DIR:-}\" ] && [ -s \"$SDKMAN_DIR/bin/sdkman-init.sh\" ]; then source \"$SDKMAN_DIR/bin/sdkman-init.sh\" && (sdk install sbt 1.10.2 || true) && (sdk install scala 3.6.2 || true); else echo \"SDKMAN not found; skipping sbt/scala install.\"; fi'",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
   "containerEnv": {
-    "MY_CREDENTIALS": "/workspaces/development/.my-credentials"
+    "EDITOR": "code --wait --new-window"
   },
   "remoteEnv": {
-    "dotfiles": "https://github.com/akinevz2/configs.git",
-    "EDITOR": "code --wait",
-    "SSH_AUTH_SOCK": "/tmp/ssh-agent.sock"
+    "dotfiles": "https://github.com/akinevz2/configs.git"
   },
-  "containerUser": "vscode",
-  "remoteUser": "vscode",
+  "containerUser": "kine",
   "updateRemoteUserUID": true
 }
