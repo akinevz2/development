@@ -24,7 +24,8 @@
         "scala-lang.scala",
         "Continue.continue",
         "Ollama.ollama",
-        "sst-dev.opencode"
+        "sst-dev.opencode",
+        "anthropic.claude-code"
       ],
       "settings": {
         "editor.formatOnSave": true,
