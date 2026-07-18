@@ -17,7 +17,7 @@
 	branch = main
 [submodule "uni/2025-report"]
 	path = uni/2025-report
-	url = https://github.com/akinevz2/2025-report
+	url = https://github.com/akinevz2/academic-report
 	branch = personal
 
 [submodule "personal/resume"]
