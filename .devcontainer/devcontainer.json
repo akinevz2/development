@@ -43,7 +43,7 @@
       "jdkDistro": "open",
       "installMaven": true
     },
-    "ghcr.io/devcontainers/features/rust:1": {
+    "ghcr.io/devcontainers/features/rust:1.5.1": {
       "version": "latest",
       "profile": "default"
     }
@@ -57,7 +57,7 @@
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
   "containerEnv": {
-    "EDITOR": "code --wait --new-window"
+    "EDITOR": "code --wait"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git"

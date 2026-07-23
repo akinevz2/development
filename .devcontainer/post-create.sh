@@ -234,14 +234,8 @@ if [ $(git submodule update --init --recursive) -ne 0 ]; then
     done
 fi
 
-cd "$USER_HOME/dots"
-if ! make stow-shell; then
-    echo "⚠ Dotfiles stow failed; continuing."
-fi
-if ! make stow-vim; then
-    echo "⚠ Vim dotfiles stow failed; continuing."
-fi
-echo "✅ Dotfiles restored!"
+# echo "✅ Dotfiles restored!"
+# cd "$USER_HOME/dots"
 echo "✅ Environment setup complete!"
 echo ""
 echo "Verifying installations..."
