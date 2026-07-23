@@ -203,10 +203,7 @@ fi
 
 git submodule sync --recursive
 
-# Handle potential submodule issues by attempting fallback strategies
-if [ $(git submodule update --init --recursive) -ne 0 ]; then
-    echo "⚠ Submodule initialization failed, attempting fallback strategies..."
-    
+submodules_resync() {
     # Try to reset and reinitialize submodules
     for submodule in "${DECLARED_SUBMODULES[@]}"; do
         local path=$(echo "$submodule" | cut -d'|' -f1)
@@ -232,6 +229,13 @@ if [ $(git submodule update --init --recursive) -ne 0 ]; then
             fi
         fi
     done
+}
+
+# Handle potential submodule issues by attempting fallback strategies
+if [ -n $(git submodule update --init --recursive) ]; then
+    echo "⚠ Submodule initialization failed, attempting fallback strategies..."
+    
+    submodules_resync
 fi
 
 # echo "✅ Dotfiles restored!"
