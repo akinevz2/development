@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # default to ${USER} if set outside of devcontainer
-USER_HOME="/home/vscode"
+USER_HOME="/home/"$USER
 export USER_HOME
 
 if [ "$USER_HOME" = "/home/root" ]; then
@@ -37,10 +37,7 @@ NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
 if [ -f ".devcontainer/install-extra.sh" ]; then
     source .devcontainer/install-extra.sh
 else
-    echo "⚠ install-extra.sh not found, defining fallback functions..."
-    
-    # Note: Package installations now handled in Dockerfile
-    # install_missing_apt_packages() function removed as packages are installed in Dockerfile
+    echo "⚠ install-extra.sh not found"
 fi
 
 install_local_cli_helpers() {
@@ -211,14 +208,14 @@ submodules_resync() {
             echo "Attempting to synchronize $path with origin..."
             
             # Try origin/main first
-            if git -C "$path" fetch origin main 2>/dev/null; then
-                git -C "$path" reset --hard origin/main 2>/dev/null && echo "✅ Reset $path to origin/main"
-            elif git -C "$path" fetch origin master 2>/dev/null; then
-                # If main fails, try master
-                git -C "$path" reset --hard origin/master 2>/dev/null && echo "✅ Reset $path to origin/master"
-            else
-                echo "⚠ Could not fetch from origin/main or origin/master for $path"
-            fi
+            # if git -C "$path" fetch origin main 2>/dev/null; then
+            #     git -C "$path" reset --hard origin/main 2>/dev/null && echo "✅ Reset $path to origin/main"
+            # elif git -C "$path" fetch origin master 2>/dev/null; then
+            #     # If main fails, try master
+            #     git -C "$path" reset --hard origin/master 2>/dev/null && echo "✅ Reset $path to origin/master"
+            # else
+            #     echo "⚠ Could not fetch from origin/main or origin/master for $path"
+            # fi
             
             # Show last commit and unstaged files if possible
             if [ -d "$path/.git" ]; then
@@ -232,23 +229,24 @@ submodules_resync() {
 }
 
 # Handle potential submodule issues by attempting fallback strategies
-if [ -n $(git submodule update --init --recursive) ]; then
-    echo "⚠ Submodule initialization failed, attempting fallback strategies..."
-    
+(git submodule update --init --recursive) || \
+    echo "⚠ Submodule initialization failed, attempting fallback strategies..." && \
     submodules_resync
-fi
 
 # echo "✅ Dotfiles restored!"
 # cd "$USER_HOME/dots"
 echo "✅ Environment setup complete!"
 echo ""
 echo "Verifying installations..."
-node -v
-npm -v
-git --version
-gh --version 
-java -version
-javac -version
-mvn -version
+bash -c "$(cat <<STRING
+node -v; 
+npm -v;
+git --version;
+gh --version;
+java -version;
+javac -version;
+mvn -version;
+STRING
+)"
 
 exit 0
