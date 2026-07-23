@@ -25,7 +25,8 @@
         "Continue.continue",
         "Ollama.ollama",
         "sst-dev.opencode",
-        "anthropic.claude-code"
+        "anthropic.claude-code",
+        "ms-python.python"
       ],
       "settings": {
         "editor.formatOnSave": true,
