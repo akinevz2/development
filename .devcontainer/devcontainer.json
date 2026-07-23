@@ -23,7 +23,8 @@
         "GitHub.copilot",
         "GitHub.copilot-chat",
         "Ollama.ollama",
-        "Vue.volar"
+        "Vue.volar",
+        "redhat.java"
       ],
       "settings": {
         "editor.formatOnSave": true,
