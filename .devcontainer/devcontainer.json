@@ -22,7 +22,8 @@
         "ms-python.python",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "Ollama.ollama"
+        "Ollama.ollama",
+        "Vue.volar"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -35,12 +36,18 @@
   },
   // Features are optional; keep this minimal and add only what you need later.
   "features": {
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "21",
+    "ghcr.io/devcontainers/features/python:latest": {
+      "version": "latest",
+      "installJupyterlab": true,
+      "installTools": true,
+      "optimize": false
+    },
+    "ghcr.io/devcontainers/features/java:latest": {
+      "version": "latest",
       "jdkDistro": "open",
       "installMaven": true
     },
-    "ghcr.io/devcontainers/features/rust:1.5.1": {
+    "ghcr.io/devcontainers/features/rust:latest": {
       "version": "latest",
       "profile": "default"
     }
