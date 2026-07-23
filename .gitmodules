@@ -19,7 +19,10 @@
 	path = uni/2025-report
 	url = https://github.com/akinevz2/academic-report
 	branch = personal
-
+[submodule "uni/report-template"]
+	path = uni/report-template
+	url = https://github.com/akinevz2/academic-report
+	branch = proposal
 [submodule "personal/resume"]
 	path = personal/resume
 	url = https://github.com/akinevz2/resume
@@ -28,10 +31,12 @@
 	path = uni/rarebert
 	url = https://github.com/akinevz2/rarebert
 	branch = main
+
 [submodule "system/lightdni-jssas-toggle"]
 	path = system/lightdni-jssas-toggle
 	url = https://github.com/akinevz2/lightdni-jssas-toggle
-
+	branch = main
 [submodule "arch-dots"]
 	path = arch-dots
 	url = https://github.com/akinevz2/doftiles
+	branch = main
