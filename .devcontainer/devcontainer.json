@@ -59,10 +59,11 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postCreateCommand": "bash .devcontainer/post-create.sh && source ~/.aliases",
   // Environment variables
   "containerEnv": {
-    "EDITOR": "code --wait"
+    "EDITOR": "code --wait",
+    "ALIASES": "~/.aliases"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git"
