@@ -192,10 +192,13 @@ fi
 echo "📂 Restoring dotfiles..."
 if [ ! -d "$USER_HOME/dots" ]; then
     # if ! git clone --recurse-submodules https://github.com/akinevz2/akinevz-dotfiles.git "$USER_HOME/dots"; then
-    if ! git clone https://github.com/akinevz2/akinevz-dotfiles.git "$USER_HOME/dots"; then
+    if ! git clone https://github.com/akinevz2/doftiles.git "$USER_HOME/dots"; then
         echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
         exit 0
     fi
+    # echo "✅ Dotfiles restored!"
+    cd "$USER_HOME/dots" && stow shell --adopt 
+    cat "$USER_HOME/.aliases" >> "$USER_HOME/.bashrc"
 fi
 
 git submodule sync --recursive
@@ -233,8 +236,6 @@ submodules_resync() {
     echo "⚠ Submodule initialization failed, attempting fallback strategies..." && \
     submodules_resync
 
-# echo "✅ Dotfiles restored!"
-# cd "$USER_HOME/dots"
 echo "✅ Environment setup complete!"
 echo ""
 echo "Verifying installations..."

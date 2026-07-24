@@ -59,15 +59,25 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh && source ~/.aliases",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",
-    "ALIASES": "~/.aliases"
+    "ALIASES": "~/.config/aliases"
   },
   "remoteEnv": {
     "dotfiles": "https://github.com/akinevz2/configs.git"
   },
   "containerUser": "vscode",
-  "updateRemoteUserUID": true
+  "updateRemoteUserUID": true,
+  "otherPortsAttributes": {
+    "onAutoForward": "notify"
+  },
+  "portsAttributes": {
+    "11434": {
+      "label": "Ollama",
+      "protocol": "http",
+      "onAutoForward": "silent"
+    }
+  }
 }
