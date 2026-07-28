@@ -1,5 +1,15 @@
 {
   "features": {
+    "ghcr.io/devcontainers-extra/features/scala-sdkman": {
+      "version": "2.0.16",
+      "resolved": "ghcr.io/devcontainers-extra/features/scala-sdkman@sha256:84cd8e06aad1c2ac77d62a718fa459641dc815d73b6eb0f2279f246b7e65e4d3",
+      "integrity": "sha256:84cd8e06aad1c2ac77d62a718fa459641dc815d73b6eb0f2279f246b7e65e4d3"
+    },
+    "ghcr.io/devcontainers-extra/features/scalacli-sdkman": {
+      "version": "2.0.16",
+      "resolved": "ghcr.io/devcontainers-extra/features/scalacli-sdkman@sha256:cde5293ba0882c79a199d61385116261c302e89a621f892a74582546a2d467d1",
+      "integrity": "sha256:cde5293ba0882c79a199d61385116261c302e89a621f892a74582546a2d467d1"
+    },
     "ghcr.io/devcontainers/features/java:latest": {
       "version": "1.8.0",
       "resolved": "ghcr.io/devcontainers/features/java@sha256:9663ce0219ff85786e87901ce5f0a59f488edd5f99b46015192cda48468b233a",

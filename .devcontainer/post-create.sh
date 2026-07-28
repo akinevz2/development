@@ -40,6 +40,13 @@ else
     echo "⚠ install-extra.sh not found"
 fi
 
+# Install any missing packages from REQUIRED_PACKAGES array (requires sudo for apt-get)
+# Note: This runs as the container user, so sudo is needed if packages are actually missing.
+# The Dockerfile should install all packages during build to avoid this requirement.
+if type install_missing_apt_packages >/dev/null 2>&1; then
+    install_missing_apt_packages || echo "⚠ Package installation skipped (may require root privileges)."
+fi
+
 install_local_cli_helpers() {
     echo "🧰 Installing local CLI helpers..."
 

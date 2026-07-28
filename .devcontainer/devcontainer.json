@@ -30,8 +30,9 @@
         "editor.formatOnSave": true,
         "files.eol": "\n",
         "terminal.integrated.defaultProfile.linux": "bash",
-        "metals.sbtScript": "sbt",
-        "metals.showInferredType": true
+        "metals.sbtScript": "${userHome}/.sdkman/candidates/sbt/current/bin/sbt",
+        "metals.showInferredType": true,
+        "metals.bloopSbtAlreadyInstalled": false
       }
     }
   },
@@ -44,13 +45,23 @@
       "optimize": false
     },
     "ghcr.io/devcontainers/features/java:latest": {
-      "version": "latest",
-      "jdkDistro": "open",
+      "version": "21",
+      "jdkDistro": "ms",
       "installMaven": true
     },
     "ghcr.io/devcontainers/features/rust:latest": {
       "version": "latest",
       "profile": "default"
+    },
+    "ghcr.io/devcontainers-extra/features/scalacli-sdkman": {
+      "version": "latest",
+      "jdkDistro": "ms",
+      "jdkVersion": "21"
+    },
+    "ghcr.io/devcontainers-extra/features/scala-sdkman": {
+      "version": "latest",
+      "jdkDistro": "ms",
+      "jdkVersion": "21"
     }
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
