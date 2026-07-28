@@ -19,13 +19,18 @@ Thumbs.db
 *~
 .vscode/settings.json
 
+# Tooling pollution
+.bsp/
+.github/
+.metals/
+.bloop
+.scala-build/
+
 # Local credentials (never commit)
 .my-credentials
 
 # Ignore all files inside internet/ directory
 internet/*
 
-# Local workspace-only subtrees
-personal/rarebert/
+# Extra temporary submodules
 system/komorebi/
-kine_wsl_id_ed25519.pub
