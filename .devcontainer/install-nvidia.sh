@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Installs NVIDIA Container Toolkit for Podman CDI on Ubuntu/WSL
+# Installs NVIDIA Container Toolkit for Container CDI on Ubuntu/WSL
 # and validates GPU passthrough with a test container.
 
 KEYRING_PATH="/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg"
@@ -32,15 +32,14 @@ sudo apt update
 echo "[5/7] Installing NVIDIA container toolkit packages..."
 sudo apt install -y nvidia-container-toolkit nvidia-container-toolkit-base
 
-echo "[6/7] Generating CDI specification for Podman..."
+echo "[6/7] Generating CDI specification for Containers..."
 sudo mkdir -p /etc/cdi
 sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
 
 echo "CDI devices detected:"
 nvidia-ctk cdi list
 
-echo "[7/7] Verifying Podman GPU passthrough..."
-#podman run --rm --device nvidia.com/gpu=all "$CUDA_TEST_IMAGE" nvidia-smi
+echo "[7/7] Verifying Container GPU passthrough..."
 nvidia-smi
 
-echo "Done. Podman GPU passthrough is configured."
+echo "Done. Container GPU passthrough is configured."
