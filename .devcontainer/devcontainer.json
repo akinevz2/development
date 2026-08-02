@@ -66,6 +66,12 @@
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
+  // Forward the WSL host's ssh-agent into the container so git/gh can use the
+  // host's SSH key. The private key never enters the container filesystem.
+  // Requires the WSL host to have ssh-agent running with the key added.
+  "mounts": [
+    "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
+  ],
   // Persistent cache mounts
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
@@ -77,7 +83,8 @@
     "ALIASES": "~/.config/aliases"
   },
   "remoteEnv": {
-    "dotfiles": "https://github.com/akinevz2/configs.git"
+    "dotfiles": "https://github.com/akinevz2/configs.git",
+    "SSH_AUTH_SOCK": "/ssh-agent"
   },
   "containerUser": "vscode",
   "updateRemoteUserUID": true,
