@@ -102,6 +102,17 @@ install_declared_local_npm_packages() {
     echo "✅ Local NPM packages installed."
 }
 
+install_opencode_cli() {
+    # Only install if opencode.json or .opencode/ exists in the workspace root
+    if [ -f "opencode.json" ] || [ -d ".opencode" ]; then
+        echo "🔧 Installing opencode-ai CLI..."
+        npm install -g opencode-ai
+        echo "✅ opencode-ai installed."
+    else
+        echo "⏭ Skipping opencode-ai installation (no opencode.json or .opencode/ found in workspace root)."
+    fi
+}
+
 ensure_github_cli_auth() {
     if [ "${GH_AUTH_PROVIDER:-}" = "wsl-host" ]; then
         echo "✅ Skipping in-container gh auth bootstrap (GH_AUTH_PROVIDER=wsl-host)."
@@ -271,6 +282,9 @@ submodules_resync() {
 
 echo "✅ Environment setup complete!"
 echo ""
+
+install_opencode_cli
+
 echo "Verifying installations..."
 bash -c "$(cat <<STRING
 node -v; 
