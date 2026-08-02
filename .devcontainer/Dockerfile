@@ -20,5 +20,8 @@ RUN echo "Updating package lists..." && \
         neovim \
         nodejs \
         git-lfs \
+        pandoc \
+        texlive-latex-extra \
+        texlive-xetex \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

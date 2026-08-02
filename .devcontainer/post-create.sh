@@ -47,7 +47,6 @@ DECLARED_SUBMODULES=(
     "personal/website|git@github.com:akinevz2/frontend.git|main"
     "personal/resume|git@github.com:akinevz2/resume.git|main"
     "personal/rarebert|git@github.com:akinevz2/rarebert.git|utilities"
-    "uni/2025-report|git@github.com:akinevz2/academic-report.git|personal"
     "uni/rarebert|git@github.com:akinevz2/rarebert.git|main"
 )
 

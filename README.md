@@ -34,6 +34,7 @@ It also installs documentation tooling via apt:
 
 - `pandoc`
 - `texlive-latex-extra`
+- `texlive-xetex`
 
 ## VS Code Customization
 

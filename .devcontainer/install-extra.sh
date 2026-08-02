@@ -1,6 +1,6 @@
 # Packages required for development environment
 # These should also be listed in the Dockerfile's apt-get install command
-REQUIRED_PACKAGES=(git make build-essential sudo stow gh vim npm neovim nodejs git-lfs)
+REQUIRED_PACKAGES=(git make build-essential sudo stow gh vim npm neovim nodejs git-lfs pandoc texlive-latex-extra texlive-xetex)
 
 install_missing_apt_packages() {
     echo "📦 Installing missing packages..."
@@ -11,6 +11,8 @@ install_missing_apt_packages() {
         local cmd="$pkg"
         case "$pkg" in
             neovim) cmd="nvim" ;;
+            texlive-xetex) cmd="xelatex" ;;
+            texlive-latex-extra) cmd="latex" ;;
         esac
 
         if ! command -v "$cmd" >/dev/null 2>&1; then
