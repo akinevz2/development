@@ -15,14 +15,6 @@
 	path = personal/website
 	url = git@github.com:akinevz2/frontend.git
 	branch = main
-[submodule "uni/2025-report"]
-	path = uni/2025-report
-	url = git@github.com:akinevz2/academic-report.git
-	branch = personal
-[submodule "uni/report-template"]
-	path = uni/report-template
-	url = git@github.com:akinevz2/academic-report.git
-	branch = proposal
 [submodule "personal/resume"]
 	path = personal/resume
 	url = git@github.com:akinevz2/resume.git
