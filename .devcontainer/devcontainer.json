@@ -23,7 +23,7 @@
         "Ollama.ollama",
         "Vue.volar",
         "redhat.java",
-        "sst-dev.opencode"
+        "mathematic.vscode-pdf"
       ],
       "settings": {
         "editor.formatOnSave": true,
