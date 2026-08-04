@@ -33,4 +33,5 @@ Thumbs.db
 internet/*
 
 # Extra temporary submodules
-system/
+system/*
+!system/drop.mjs

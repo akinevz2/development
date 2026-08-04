@@ -7,7 +7,10 @@ SUBMODULE_BRANCH ?= main
 SUBMODULE_COMMIT_MSG ?= chore: sync pagerts submodule changes
 PARENT_COMMIT_MSG ?= chore: update pagerts submodule pointer
 
-.PHONY: subrepo-sync subrepo-publish subrepo-pick globbit
+DROP_PORT ?= 7331
+DROP_OUT ?= $(CURDIR)
+
+.PHONY: subrepo-sync subrepo-publish subrepo-pick globbit drop
 
 subrepo-sync:
 	@set -e; \
@@ -124,3 +127,10 @@ help:
 	@echo "  make verify            # Check installation"
 	@echo "  make clean             # Remove Scala"
 	@echo "  make help              # Show help"
+
+# File dropper: serves an HTTP page (auto-forwarded by VS Code) for dragging
+# files from the Windows host into the devcontainer filesystem.
+# Usage: make drop                  # destination = cwd
+#        make drop DROP_OUT=/some/dir DROP_PORT=8000
+drop:
+	@node system/drop.mjs --port $(DROP_PORT) --out $(DROP_OUT)
