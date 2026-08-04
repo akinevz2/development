@@ -1,0 +1,17 @@
+{
+    "name": "check-machines",
+    "description": "Check connectivity of a specific machine in your ollama fleet - WS-RAREBOX, V9-MINI, or WS-VISION",
+    "commands": [
+        {
+            "action": "bash",
+            "prompt": "curl -s --max-time 5 http://{{host}}:11434/api/version | jq . || echo 'Failed to connect'"
+        }
+    ],
+    "parameters": [
+        {
+            "name": "host",
+            "type": "string",
+            "description": "Hostname (prefer plain machine name, with no .lan or .local suffix)"
+        }
+    ]
+}

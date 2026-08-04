@@ -1,0 +1,10 @@
+{
+    "name": "fleet-status",
+    "description": "Check full status report of all fleet machines including versions and model counts",
+    "commands": [
+        {
+            "action": "bash"
+        }
+    ],
+    "parameters": []
+}
