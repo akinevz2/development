@@ -105,7 +105,19 @@ install_opencode_cli() {
     # Only install if opencode.json or .opencode/ exists in the workspace root
     if [ -f "opencode.json" ] || [ -d ".opencode" ]; then
         echo "🔧 Installing opencode-ai CLI..."
-        npm install -g opencode-ai
+
+        mkdir -p "$HOME/.local/bin" "$HOME/.local/lib"
+        export npm_config_prefix="$HOME/.local"
+        npm install --global opencode-ai
+
+        # Ensure the executable is on PATH for this and future shells.
+        if ! grep -Fq "$HOME/.local/bin" "$HOME/.bashrc" 2>/dev/null; then
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bashrc"
+        fi
+        if [ -f "$HOME/.zshrc" ] && ! grep -Fq "$HOME/.local/bin" "$HOME/.zshrc" 2>/dev/null; then
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+        fi
+
         echo "✅ opencode-ai installed."
     else
         echo "⏭ Skipping opencode-ai installation (no opencode.json or .opencode/ found in workspace root)."
