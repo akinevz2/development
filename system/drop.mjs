@@ -76,6 +76,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/") return page(res);
     if (req.method === "GET" && url.pathname === "/dirs") return json(res, dirs);
     if (req.method === "POST" && url.pathname === "/upload") return upload(req, res, url);
+    if (req.method === "POST" && url.pathname === "/shutdown") return shutdown(res);
     res.writeHead(404);
     res.end("not found");
 });
@@ -126,6 +127,16 @@ function upload(req, res, url) {
         res.writeHead(500);
         res.end(e.message);
     });
+}
+
+// ---------------------------------------------------------------------------
+// POST /shutdown — close the server so the CLI returns to bash
+// ---------------------------------------------------------------------------
+function shutdown(res) {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 500).unref();
 }
 
 // ---------------------------------------------------------------------------
@@ -203,6 +214,7 @@ const PAGE = `<!doctype html>
     <kbd>j</kbd>/<kbd>k</kbd> navigate &nbsp;
     <kbd>Enter</kbd> confirm destination &nbsp;
     <kbd>Esc</kbd> clear &nbsp;
+    <kbd>q</kbd> quit &nbsp;
     drag files onto the canvas
   </span>
 </header>
@@ -324,6 +336,12 @@ document.addEventListener("keydown", (e) => {
     e.preventDefault();
     confirmDest();
   }
+  if (e.key === "q" && document.activeElement !== filterEl) {
+    e.preventDefault();
+    fetch("/shutdown", { method: "POST" }).finally(() => {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#666;font:14px/1.5 monospace">server stopped — you can close this tab</div>';
+    });
+  }
 });
 
 // ---- drag & drop ----
@@ -387,6 +405,11 @@ function drawBg(active) {
   }
 }
 window.addEventListener("resize", () => drawBg(dropzone.classList.contains("over")));
+
+// ---- shutdown on tab close ----
+window.addEventListener("beforeunload", () => {
+  navigator.sendBeacon("/shutdown", "");
+});
 
 // ---- init ----
 setDest(ROOT);
