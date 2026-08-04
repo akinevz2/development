@@ -65,6 +65,11 @@
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "forwardPorts": [],
+  // Expose the Docker host to the container and provide a friendly alias for it.
+  "runArgs": [
+    "--add-host=host.docker.internal:host-gateway",
+    "--add-host=minifridge:host-gateway"
+  ],
   // Forward the WSL host's ssh-agent into the container so git/gh can use the
   // host's SSH key. The private key never enters the container filesystem.
   // Requires the WSL host to have ssh-agent running with the key added.
@@ -89,12 +94,5 @@
   "updateRemoteUserUID": true,
   "otherPortsAttributes": {
     "onAutoForward": "notify"
-  },
-  "portsAttributes": {
-    "11434": {
-      "label": "Ollama",
-      "protocol": "http",
-      "onAutoForward": "silent"
-    }
   }
 }

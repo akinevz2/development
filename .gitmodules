@@ -25,6 +25,6 @@
 	branch = main
 
 [submodule "system/lightdni-jssas-toggle"]
-	path = system/lightdni-jssas-toggle
+	path = personal/lightdni-jssas-toggle
 	url = git@github.com:akinevz2/lightdni-jssas-toggle.git
 	branch = main
