@@ -22,7 +22,8 @@
         "GitHub.copilot-chat",
         "Ollama.ollama",
         "Vue.volar",
-        "redhat.java"
+        "redhat.java",
+        "sst-dev.opencode"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -68,7 +69,7 @@
   // host's SSH key. The private key never enters the container filesystem.
   // Requires the WSL host to have ssh-agent running with the key added.
   "mounts": [
-    "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind"
+    "source=${localEnv:SSH_AUTH_SOCK},target=${localEnv:SSH_AUTH_SOCK},type=bind"
   ],
   // Persistent cache mounts
   "name": "Development Workstation",
@@ -81,8 +82,8 @@
     "ALIASES": "~/.config/aliases"
   },
   "remoteEnv": {
-    "dotfiles": "https://github.com/akinevz2/configs.git",
-    "SSH_AUTH_SOCK": "/ssh-agent"
+    "dotfiles": "https://github.com/akinevz2/doftiles.git",
+    "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
   },
   "containerUser": "vscode",
   "updateRemoteUserUID": true,

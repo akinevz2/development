@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "mathematic.vscode-pdf"
+        "mathematic.vscode-pdf",
+        "sst-dev.opencode"
     ]
 }

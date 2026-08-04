@@ -76,6 +76,7 @@ gh --version
 ## Repository Layout (High Level)
 
 - `personal/`: personal projects
+- `system/`: personal projects more suited to non-leisure time development
 - `uni/`: university projects and coursework
 - `.devcontainer/`: container build and setup configuration
 

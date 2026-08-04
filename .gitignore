@@ -33,8 +33,4 @@ Thumbs.db
 internet/*
 
 # Extra temporary submodules
-system/komorebi/
-
-# Standalone repo worktrees (not submodules)
-uni/anlp/
-uni/report-template/
+system/

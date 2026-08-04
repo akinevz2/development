@@ -234,8 +234,8 @@ fi
 
 echo "📂 Restoring dotfiles..."
 if [ ! -d "$USER_HOME/dots" ]; then
-    # if ! git clone --recurse-submodules https://github.com/akinevz2/akinevz-dotfiles.git "$USER_HOME/dots"; then
-    if ! git clone git@github.com:akinevz2/doftiles.git "$USER_HOME/dots"; then
+    if ! git clone --recurse-submodules "$dotfiles" "$USER_HOME/dots"; then
+    # if ! git clone  "$USER_HOME/dots"; then
         echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
         exit 0
     fi
