@@ -79,10 +79,10 @@
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",
-    "ALIASES": "~/.config/aliases"
+    "ALIASES": "~/.config/aliases",
+    "dotfiles": "https://github.com/akinevz2/doftiles.git"
   },
   "remoteEnv": {
-    "dotfiles": "https://github.com/akinevz2/doftiles.git",
     "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
   },
   "containerUser": "vscode",

@@ -20,15 +20,16 @@ VS Code Dev Containers.
 
 Dotfiles are restored from:
 
-- Repository: `https://github.com/akinevz2/configs.git`
-- Target path: `~/dotfiles`
-- Install command: `cd ~/dotfiles && make stow`
+- Repository: `https://github.com/akinevz2/doftiles.git`
+- Target path: `~/dots`
+- Stow packages: `bar`, `dunst`, `herbst`, `rofi`, `shell`, `vim`
+- Install command: `cd ~/dots && stow --adopt bar dunst herbst rofi shell vim`
 
-The post-create script also ensures dotfiles are synced and shell links are
-applied using:
-
-- `.devcontainer/post-create.sh`
-- `make stow-shell`
+The post-create script clones the dotfiles repo into `~/dots` and stows each
+package into `$HOME` using `stow --adopt`. The `dotfiles` URL is provided via
+the `containerEnv` in `.devcontainer/devcontainer.json` (with a fallback
+default baked into `.devcontainer/post-create.sh`), so it is available to
+`postCreateCommand`.
 
 It also installs documentation tooling via apt:
 

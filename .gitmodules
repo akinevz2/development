@@ -28,7 +28,3 @@
 	path = system/lightdni-jssas-toggle
 	url = git@github.com:akinevz2/lightdni-jssas-toggle.git
 	branch = main
-[submodule "arch-dots"]
-	path = arch-dots
-	url = git@github.com:akinevz2/doftiles.git
-	branch = main

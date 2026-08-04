@@ -76,7 +76,6 @@ install_local_cli_helpers() {
     echo "🧰 Installing local CLI helpers..."
 
     mkdir -p "$HOME/.local/bin"
-    todo
 
     echo "✅ Local CLI helpers installed."
 }
@@ -232,20 +231,41 @@ else
 fi
 # ─────────────────────────────────────────────────────────────────────────────
 
-echo "📂 Restoring dotfiles..."
-if [ ! -d "$USER_HOME/dots" ]; then
-    if ! git clone --recurse-submodules "$dotfiles" "$USER_HOME/dots"; then
-    # if ! git clone  "$USER_HOME/dots"; then
-        echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
-        exit 0
-    fi
-    # echo "✅ Dotfiles restored!"
-    # stow symlinks shell/.bashrc, .aliases, .exports, .zshrc, etc. into $USER_HOME.
-    # .bashrc sources aliases/exports and bootstraps ssh-agent, so no manual append.
-    cd "$USER_HOME/dots" && stow shell --adopt
-fi
+# Fallback in case `dotfiles` remoteEnv isn't available to postCreateCommand.
+: "${dotfiles:=https://github.com/akinevz2/doftiles.git}"
 
-git submodule sync --recursive
+echo "📂 Restoring dotfiles from $dotfiles ..."
+restore_dotfiles() {
+    if [ -d "$USER_HOME/dots" ]; then
+        echo "✅ $USER_HOME/dots already exists; skipping clone."
+        return 0
+    fi
+
+    if ! git clone --recurse-submodules "$dotfiles" "$USER_HOME/dots"; then
+        echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
+        return 1
+    fi
+
+    # stow symlinks bar/, dunst/, herbst/, rofi/, shell/, vim/ into $USER_HOME.
+    # .bashrc sources aliases/exports and bootstraps ssh-agent, so no manual append.
+    local stow_pkgs=()
+    local pkg
+    for pkg in bar dunst herbst rofi shell vim; do
+        [ -d "$USER_HOME/dots/$pkg" ] && stow_pkgs+=("$pkg")
+    done
+
+    if [ ${#stow_pkgs[@]} -gt 0 ]; then
+        (cd "$USER_HOME/dots" && stow --adopt "${stow_pkgs[@]}")
+        echo "✅ Dotfiles restored and stowed: ${stow_pkgs[*]}"
+    else
+        echo "⚠ No stowable packages found in $USER_HOME/dots; skipping stow."
+    fi
+}
+
+restore_dotfiles || echo "⚠ Dotfiles restore failed; continuing with remaining setup."
+
+# Keep the dots repo's own submodules (if any) in sync.
+[ -d "$USER_HOME/dots" ] && git -C "$USER_HOME/dots" submodule sync --recursive 2>/dev/null || true
 
 submodules_resync() {
     # Try to reset and reinitialize submodules
