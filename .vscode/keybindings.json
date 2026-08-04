@@ -171,6 +171,20 @@
     "command": "editor.action.showHover",
     "when": "editorTextFocus"
   },
+  // ───────────────────────── terminal: ctrl+w (send cut-word to terminal, don't close buffer) ─────────────────────────
+  {
+    "key": "ctrl+w",
+    "command": "-workbench.action.closeActiveEditor",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+w",
+    "command": "workbench.action.terminal.sendSequence",
+    "args": {
+      "text": "\u0017"
+    },
+    "when": "terminalFocus"
+  },
   // ───────────────────────── navigate buffers (ctrl+j / ctrl+k) ─────────────────────────
   {
     "key": "ctrl+j",
