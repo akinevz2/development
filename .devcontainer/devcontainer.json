@@ -11,8 +11,6 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "redhat.vscode-yaml",
-        "redhat.vscode-quarkus",
         "tamasfe.even-better-toml",
         "editorconfig.editorconfig",
         "usernamehw.errorlens",
@@ -27,11 +25,7 @@
       ],
       "settings": {
         "editor.formatOnSave": true,
-        "files.eol": "\n",
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "metals.sbtScript": "${userHome}/.sdkman/candidates/sbt/current/bin/sbt",
-        "metals.showInferredType": true,
-        "metals.bloopSbtAlreadyInstalled": false
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   },
@@ -41,7 +35,7 @@
       "version": "latest",
       "installJupyterlab": true,
       "installTools": true,
-      "optimize": false
+      "optimize": true
     },
     "ghcr.io/devcontainers/features/java:latest": {
       "version": "21",
@@ -52,30 +46,7 @@
       "version": "latest",
       "profile": "default"
     },
-    "ghcr.io/devcontainers-extra/features/scalacli-sdkman": {
-      "version": "latest",
-      "jdkDistro": "ms",
-      "jdkVersion": "21"
-    },
-    "ghcr.io/devcontainers-extra/features/scala-sdkman": {
-      "version": "latest",
-      "jdkDistro": "ms",
-      "jdkVersion": "21"
-    }
   },
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [],
-  // Expose the Docker host to the container and provide a friendly alias for it.
-  "runArgs": [
-    "--add-host=host.docker.internal:host-gateway",
-    "--add-host=minifridge:host-gateway"
-  ],
-  // Forward the WSL host's ssh-agent into the container so git/gh can use the
-  // host's SSH key. The private key never enters the container filesystem.
-  // Requires the WSL host to have ssh-agent running with the key added.
-  "mounts": [
-    "source=${localEnv:SSH_AUTH_SOCK},target=${localEnv:SSH_AUTH_SOCK},type=bind"
-  ],
   // Persistent cache mounts
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
@@ -87,12 +58,5 @@
     "ALIASES": "~/.config/aliases",
     "dotfiles": "https://github.com/akinevz2/doftiles.git"
   },
-  "remoteEnv": {
-    "SSH_AUTH_SOCK": "${localEnv:SSH_AUTH_SOCK}"
-  },
-  "containerUser": "vscode",
-  "updateRemoteUserUID": true,
-  "otherPortsAttributes": {
-    "onAutoForward": "notify"
-  }
+  "containerUser": "vscode"
 }
