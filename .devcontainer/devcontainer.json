@@ -21,7 +21,8 @@
         "Ollama.ollama",
         "Vue.volar",
         "redhat.java",
-        "mathematic.vscode-pdf"
+        "mathematic.vscode-pdf",
+        "ms-azuretools.vscode-containers"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -59,7 +60,8 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Run the update-dots bootstrap after the container is created and on each start.
-  "postStartCommand": "bash .devcontainer/update-dots.sh",
+  "postStartCommand": ".devcontainer/update-dots.sh",
+  "postAttachCommand": ".devcontainer/update-dots.sh",
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",

@@ -16,7 +16,7 @@ if [ "$(id -u)" -eq 0 ]; then
     echo "⚠ Running as root; continuing with $USER_HOME" >&2
 fi
 
-MY_CREDENTIALS=".my-credentials"  # Relative to $USER_HOME; can be overridden by MY_CREDENTIALS env var
+MY_CREDENTIALS="$HOME/.my-credentials"  # Relative to $USER_HOME; can be overridden by MY_CREDENTIALS env var
 
 ensure_github_known_hosts() {
     # A freshly rebuilt container has no ~/.ssh/known_hosts, so the first
