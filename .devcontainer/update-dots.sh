@@ -249,6 +249,7 @@ echo "📂 Restoring dotfiles from $dotfiles ..."
 restore_dotfiles() {
     if [ -d "$USER_HOME/dots" ]; then
         echo "✅ $USER_HOME/dots already exists; refreshing."
+        cd "$USER_HOME/dots" && git pull
         return 0
     fi
 
