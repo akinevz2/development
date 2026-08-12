@@ -249,29 +249,10 @@ echo "📂 Restoring dotfiles from $dotfiles ..."
 restore_dotfiles() {
     if [ -d "$USER_HOME/dots" ]; then
         echo "✅ $USER_HOME/dots already exists; refreshing."
-        cd "$USER_HOME/dots" && make
         return 0
     fi
 
-    if ! git clone --recurse-submodules "$dotfiles" "$USER_HOME/dots"; then
-        echo "⚠ Dotfiles clone failed; continuing without dotfiles restore."
-        return 1
-    fi
-
-    # stow symlinks bar/, dunst/, herbst/, rofi/, shell/, vim/ into $USER_HOME.
-    # .bashrc sources aliases/exports and bootstraps ssh-agent, so no manual append.
-    local stow_pkgs=()
-    local pkg
-    for pkg in bar dunst herbst rofi shell vim; do
-        [ -d "$USER_HOME/dots/$pkg" ] && stow_pkgs+=("$pkg")
-    done
-
-    if [ ${#stow_pkgs[@]} -gt 0 ]; then
-        (cd "$USER_HOME/dots" && stow --adopt "${stow_pkgs[@]}")
-        echo "✅ Dotfiles restored and stowed: ${stow_pkgs[*]}"
-    else
-        echo "⚠ No stowable packages found in $USER_HOME/dots; skipping stow."
-    fi
+    cd "$USER_HOME/dots" && make install
 }
 
 restore_dotfiles || echo "⚠ Dotfiles restore failed; continuing with remaining setup."
