@@ -10,7 +10,7 @@ VS Code Dev Containers.
 - Devcontainer features:
   - Git (latest)
   - GitHub CLI (latest)
-- Post-create runtime bootstrap:
+- Update-dots runtime bootstrap:
   - `nvm` via the upstream install script (`v0.40.5`)
   - Node.js LTS via `nvm install --lts`
 - Forwarded ports: 8080 and 8081
@@ -25,10 +25,10 @@ Dotfiles are restored from:
 - Stow packages: `bar`, `dunst`, `herbst`, `rofi`, `shell`, `vim`
 - Install command: `cd ~/dots && stow --adopt bar dunst herbst rofi shell vim`
 
-The post-create script clones the dotfiles repo into `~/dots` and stows each
+The update-dots script clones the dotfiles repo into `~/dots` and stows each
 package into `$HOME` using `stow --adopt`. The `dotfiles` URL is provided via
 the `containerEnv` in `.devcontainer/devcontainer.json` (with a fallback
-default baked into `.devcontainer/post-create.sh`), so it is available to
+default baked into `.devcontainer/update-dots.sh`), so it is available to
 `postCreateCommand`.
 
 It also installs documentation tooling via apt:
@@ -86,5 +86,5 @@ gh --version
 - Edit `.devcontainer/devcontainer.json` for ports, features, extensions, and
   editor settings.
 - Edit `.devcontainer/Dockerfile` for OS-level packages and base image changes.
-- Edit `.devcontainer/post-create.sh` for setup steps that should run after
+- Edit `.devcontainer/update-dots.sh` for setup steps that should run after
   container creation.

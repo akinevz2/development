@@ -1,30 +1,33 @@
 
 [submodule "personal/gtkappfolder"]
 	path = personal/gtkappfolder
-	url = git@github.com:akinevz2/gtkappfolder.git
-	branch = main
-[submodule "personal/graphbrowser"]
-	path = personal/graphbrowser
-	url = git@github.com:akinevz2/graphbrowser.git
+	url = https://github.com/akinevz2/gtkappfolder.git
 	branch = main
 [submodule "personal/pagerts"]
 	path = personal/pagerts
-	url = git@github.com:akinevz2/pagerts.git
+	url = https://github.com/akinevz2/pagerts.git
 	branch = main
 [submodule "personal/website"]
 	path = personal/website
-	url = git@github.com:akinevz2/frontend.git
+	url = https://github.com/akinevz2/frontend.git
 	branch = main
 [submodule "personal/resume"]
 	path = personal/resume
-	url = git@github.com:akinevz2/resume.git
+	url = https://github.com/akinevz2/resume.git
 	branch = main
 [submodule "uni/rarebert"]
 	path = uni/rarebert
-	url = git@github.com:akinevz2/rarebert.git
+	url = https://github.com/akinevz2/rarebert.git
 	branch = main
-
-[submodule "system/lightdni-jssas-toggle"]
+[submodule "uni/anlp"]
+	path = uni/anlp
+	url = https://github.com/akinevz2/rarebert-anlp.git
+	branch = anlp
+[submodule "uni/report-template"]
+	path = uni/report-template
+	url = https://github.com/akinevz2/report-template.git
+	branch = template
+[submodule "personal/lightdni-jssas-toggle"]
 	path = personal/lightdni-jssas-toggle
-	url = git@github.com:akinevz2/lightdni-jssas-toggle.git
-	branch = main
+	url = https://github.com/akinevz2/lightdni-jssas-toggle.git
+	branch = master

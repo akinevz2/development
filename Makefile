@@ -10,7 +10,10 @@ PARENT_COMMIT_MSG ?= chore: update pagerts submodule pointer
 DROP_PORT ?= 7331
 DROP_OUT ?= $(CURDIR)
 
-.PHONY: subrepo-sync subrepo-publish subrepo-pick globbit drop
+PINCH_PORT ?= 7332
+PINCH_ROOT ?= $(CURDIR)
+
+.PHONY: subrepo-sync subrepo-publish subrepo-pick globbit drop pinch
 
 subrepo-sync:
 	@set -e; \
@@ -134,3 +137,10 @@ help:
 #        make drop DROP_OUT=/some/dir DROP_PORT=8000
 drop:
 	@node system/drop.mjs --port $(DROP_PORT) --out $(DROP_OUT)
+
+# File picker: serves an HTTP page (auto-forwarded by VS Code) for picking
+# files from the devContainer filesystem and downloading them to the host.
+# Usage: make pinch                  # root = cwd
+#        make pinch PINCH_ROOT=/some/dir PINCH_PORT=8000
+pinch:
+	@node system/pinch.mjs --port $(PINCH_PORT) --root $(PINCH_ROOT)

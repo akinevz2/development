@@ -45,18 +45,30 @@
     "ghcr.io/devcontainers/features/rust:latest": {
       "version": "latest",
       "profile": "default"
-    },
+    }
   },
+  // Forward the WSL host's ssh-agent into the container so git/gh can use the
+  // host's SSH key. The private key never enters the container filesystem.
+  // Requires the WSL host to have ssh-agent running with the key added.
+  // Mounted into the container user's $HOME so the socket is accessible
+  // regardless of the host user's home path (e.g. /home/kine vs /home/vscode).
+  "mounts": [
+    "source=${localEnv:SSH_AUTH_SOCK},target=/home/vscode/.ssh-agent,type=bind"
+  ],
   // Persistent cache mounts
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  // Run the update-dots bootstrap after the container is created and on each start.
+  "postStartCommand": "bash .devcontainer/update-dots.sh & code tunnel --accept-server-license-terms --name=${containerWorkspaceFolderBasename}",
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",
     "ALIASES": "~/.config/aliases",
     "dotfiles": "https://github.com/akinevz2/doftiles.git"
   },
+  "remoteEnv": {
+    "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent"
+  },
+  "remoteUser": "vscode",
   "containerUser": "vscode"
 }
