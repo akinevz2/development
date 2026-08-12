@@ -59,7 +59,7 @@
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Run the update-dots bootstrap after the container is created and on each start.
-  "postStartCommand": "bash .devcontainer/update-dots.sh & code tunnel --accept-server-license-terms --name=${containerWorkspaceFolderBasename}",
+  "postStartCommand": "bash .devcontainer/update-dots.sh",
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",

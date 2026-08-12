@@ -252,11 +252,10 @@ restore_dotfiles() {
         cd "$USER_HOME/dots" && git pull
         return 0
     fi
-
-    cd "$USER_HOME/dots" && make install
 }
 
-restore_dotfiles || echo "⚠ Dotfiles restore failed; continuing with remaining setup."
+git clone $dotfiles "$USER_HOME/dots" || restore_dotfiles
+cd "$USER_HOME/dots" && make install || echo "⚠ Dotfiles restore failed; continuing with remaining setup."
 
 # Handle potential submodule issues by attempting fallback strategies
 (git submodule update --init --recursive --remote) || \
