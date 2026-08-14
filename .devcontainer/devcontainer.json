@@ -9,20 +9,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "tamasfe.even-better-toml",
-        "editorconfig.editorconfig",
-        "usernamehw.errorlens",
-        "eamodio.gitlens",
         "ms-python.python",
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "Ollama.ollama",
         "Vue.volar",
         "redhat.java",
-        "mathematic.vscode-pdf",
-        "ms-azuretools.vscode-containers"
+        "ms-azuretools.vscode-containers",
+        "Ollama.ollama"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -42,10 +33,6 @@
       "version": "21",
       "jdkDistro": "ms",
       "installMaven": true
-    },
-    "ghcr.io/devcontainers/features/rust:latest": {
-      "version": "latest",
-      "profile": "default"
     }
   },
   // Forward the WSL host's ssh-agent into the container so git/gh can use the

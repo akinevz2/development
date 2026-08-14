@@ -269,6 +269,11 @@ restore_dotfiles() {
 git clone $dotfiles "$USER_HOME/dots" || restore_dotfiles
 cd "$USER_HOME/dots" && make install || echo "⚠ Dotfiles restore failed; continuing with remaining setup."
 
+# Return to the workspace root before touching submodules; the commands above
+# leave CWD inside ~/dots (the dotfiles repo), so without this the submodule
+# update would act on the wrong repository.
+cd "$WORKSPACE_ROOT"
+
 # Handle potential submodule issues by attempting fallback strategies
 (git submodule update --init --recursive --remote) || \
     echo "⚠ Submodule initialization failed"
