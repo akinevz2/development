@@ -15,10 +15,6 @@
 	path = personal/resume
 	url = https://github.com/akinevz2/resume.git
 	branch = main
-[submodule "uni/rarebert"]
-	path = uni/rarebert
-	url = https://github.com/akinevz2/rarebert.git
-	branch = main
 [submodule "uni/anlp"]
 	path = uni/anlp
 	url = https://github.com/akinevz2/rarebert-anlp.git
@@ -31,3 +27,11 @@
 	path = personal/lightdni-jssas-toggle
 	url = https://github.com/akinevz2/lightdni-jssas-toggle.git
 	branch = master
+[submodule "personal/rarebert"]
+	path = personal/rarebert
+	url = https://github.com/akinevz2/rarebert.git
+	branch = feat/tui-exit-handling
+[submodule "uni/loc-submission"]
+	path = uni/loc-submission
+	url = https://github.com/akinevz2/report-template.git
+	branch = loc
