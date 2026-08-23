@@ -43,21 +43,29 @@
   "mounts": [
     "source=${localEnv:SSH_AUTH_SOCK},target=/home/vscode/.ssh-agent,type=bind"
   ],
+  // Forward Ollama port from WSL host (0.0.0.0:11434) into the container
+  "portsAttributes": {
+    "11434": {
+      "label": "Ollama",
+      "onAutoForward": "notify"
+    }
+  },
   // Persistent cache mounts
   "name": "Development Workstation",
   "workspaceFolder": "/workspaces/development",
   // Run the update-dots bootstrap after the container is created and on each start.
-  "postStartCommand": ".devcontainer/update-dots.sh",
+  "postStartCommand": "bash .devcontainer/setup-ollama.sh && .devcontainer/update-dots.sh",
   "postAttachCommand": ".devcontainer/update-dots.sh",
   // Environment variables
   "containerEnv": {
     "EDITOR": "code --wait",
     "ALIASES": "~/.config/aliases",
-    "dotfiles": "https://github.com/akinevz2/doftiles.git"
+    "dotfiles": "https://github.com/akinevz2/doftiles.git",
+    "OLLAMA_HOST": "http://ws-rarebox:11434"
   },
   "remoteEnv": {
-    "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent"
+    "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent",
+    "OLLAMA_HOST": "http://ws-rarebox:11434"
   },
-  "remoteUser": "vscode",
   "containerUser": "vscode"
 }

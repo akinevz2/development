@@ -1,9 +1,0 @@
-[submodule "anlp"]
-	path = anlp
-	url = https://github.com/akinevz2/rarebert-anlp.git
-[submodule "rarebert"]
-	path = rarebert
-	url = https://github.com/akinevz2/rarebert.git
-[submodule "report-template"]
-	path = report-template
-	url = https://github.com/akinevz2/report-template.git

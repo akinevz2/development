@@ -1,10 +1,10 @@
 {
   "name": "open-in-editor",
-  "description": "Open a file in VS Code using the 'code' command with remote flag",
+  "description": "Open a file in VS Code using the 'code' command. Supports opening at a specific line:column via file:line:col syntax with the -g switch.",
   "commands": [
     {
       "action": "bash",
-      "prompt": "Run: code {{file}} -r"
+      "prompt": "Run: code {{file}} -g {{location}} -r"
     }
   ],
   "parameters": [
@@ -12,6 +12,12 @@
       "name": "file",
       "type": "string",
       "description": "Path to the file to open in VS Code"
+    },
+    {
+      "name": "location",
+      "type": "string",
+      "description": "Line:column to open at (e.g. 42, 42:5, or 1 for file start). Defaults to 1 if omitted.",
+      "default": "1"
     }
   ]
 }

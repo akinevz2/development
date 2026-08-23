@@ -23,5 +23,8 @@ RUN echo "Updating package lists..." && \
         pandoc \
         texlive-latex-extra \
         texlive-xetex \
+        curl \
+        ripgrep \
+        zstd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

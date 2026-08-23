@@ -1,4 +1,3 @@
-
 [submodule "personal/gtkappfolder"]
 	path = personal/gtkappfolder
 	url = https://github.com/akinevz2/gtkappfolder.git
@@ -15,14 +14,6 @@
 	path = personal/resume
 	url = https://github.com/akinevz2/resume.git
 	branch = main
-[submodule "uni/anlp"]
-	path = uni/anlp
-	url = https://github.com/akinevz2/rarebert-anlp.git
-	branch = anlp
-[submodule "uni/report-template"]
-	path = uni/report-template
-	url = https://github.com/akinevz2/report-template.git
-	branch = template
 [submodule "personal/lightdni-jssas-toggle"]
 	path = personal/lightdni-jssas-toggle
 	url = https://github.com/akinevz2/lightdni-jssas-toggle.git
@@ -31,7 +22,3 @@
 	path = personal/rarebert
 	url = https://github.com/akinevz2/rarebert.git
 	branch = feat/tui-exit-handling
-[submodule "uni/loc-submission"]
-	path = uni/loc-submission
-	url = https://github.com/akinevz2/report-template.git
-	branch = loc
