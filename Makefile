@@ -12,7 +12,7 @@ all: restore
 
 # Help target
 help:
-	@$$EDITOR -g12 ./Makefile
+	@vi +15 ./Makefile
 
 drop:
 	@node system/drop.mjs --port $(DROP_PORT) --out $(DROP_OUT)
