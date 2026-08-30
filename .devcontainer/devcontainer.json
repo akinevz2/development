@@ -67,8 +67,5 @@
     "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent",
     "OLLAMA_HOST": "host.docker.internal"
   },
-  "containerUser": "vscode",
-  "runArgs": [
-    "--extra_hosts=host.docker.internal:host-gateway"
-  ]
+  "containerUser": "vscode"
 }
