@@ -30,7 +30,7 @@
       "optimize": true
     },
     "ghcr.io/devcontainers/features/java:latest": {
-      "version": "21",
+      "version": "latest",
       "jdkDistro": "ms",
       "installMaven": true
     }
@@ -40,9 +40,9 @@
   // Requires the WSL host to have ssh-agent running with the key added.
   // Mounted into the container user's $HOME so the socket is accessible
   // regardless of the host user's home path (e.g. /home/kine vs /home/vscode).
-  "mounts": [
-    "source=${localEnv:SSH_AUTH_SOCK},target=/home/vscode/.ssh-agent,type=bind"
-  ],
+  // "mounts": [
+  //   "source=${localEnv:SSH_AUTH_SOCK},target=/home/vscode/.ssh-agent,type=bind"
+  // ],
   // Forward Ollama port from WSL host (0.0.0.0:11434) into the container
   "portsAttributes": {
     "11434": {
@@ -61,11 +61,14 @@
     "EDITOR": "code --wait",
     "ALIASES": "~/.config/aliases",
     "dotfiles": "https://github.com/akinevz2/doftiles.git",
-    "OLLAMA_HOST": "http://ws-rarebox:11434"
+    "OLLAMA_HOST": "host.docker.internal"
   },
   "remoteEnv": {
     "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent",
-    "OLLAMA_HOST": "http://ws-rarebox:11434"
+    "OLLAMA_HOST": "host.docker.internal"
   },
-  "containerUser": "vscode"
+  "containerUser": "vscode",
+  "runArgs": [
+    "--extra_hosts=host.docker.internal:host-gateway"
+  ]
 }

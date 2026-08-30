@@ -1,26 +1,25 @@
 
 DROP_PORT ?= 7331
-DROP_OUT ?= $(CURDIR)
+DROP_ROOT ?= $(CURDIR)
 
 PINCH_PORT ?= 7332
 PINCH_ROOT ?= $(CURDIR)
 
 .PHONY: all restore
 
-all: restore
+all: edit
 	@echo all engines go!
+
+edit:
+	@vi ./Makefile
 
 # Help target
 help:
 	@vi +15 ./Makefile
 
 drop:
-	@node system/drop.mjs --port $(DROP_PORT) --out $(DROP_OUT)
+	@node system/drop.mjs --port $(DROP_PORT) --out $(DROP_ROOT)
 
-# File picker: serves an HTTP page (auto-forwarded by VS Code) for picking
-# files from the devContainer filesystem and downloading them to the host.
-# Usage: make pinch                  # root = cwd
-#        make pinch PINCH_ROOT=/some/dir PINCH_PORT=8000
 pinch:
 	@node system/pinch.mjs --port $(PINCH_PORT) --root $(PINCH_ROOT)
 
