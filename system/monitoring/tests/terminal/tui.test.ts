@@ -22,7 +22,7 @@ const blockOf = (frame: string, name: string): string => {
 const withUsage = (usage: Partial<Record<'cpu' | 'mem' | 'gpu0' | 'gpu1', number>>): AllMetrics => ({
     timestamp: Date.now(),
     cpu: { timestamp: 0, systemUsage: usage.cpu ?? 0, userUsage: 0, idleUsage: 100 - (usage.cpu ?? 0), totalUsage: 100, threadCount: 8, coreCount: 4 },
-    memory: { timestamp: 0, total: 100, used: usage.mem ?? 0, available: 100 - (usage.mem ?? 0), free: 0, swapTotal: 0, swapUsed: 0, cached: 0, buffers: 0, allocationRatio: usage.mem ?? 0, swapAllocationRatio: 0 },
+    memory: { timestamp: 0, total: 100, used: usage.mem ?? 0, available: 100 - (usage.mem ?? 0), free: 0, allocationRatio: usage.mem ?? 0 },
     gpu: {
         timestamp: 0,
         totalGPUs: 2,
@@ -31,9 +31,7 @@ const withUsage = (usage: Partial<Record<'cpu' | 'mem' | 'gpu0' | 'gpu1', number
             { index: 1, name: 'g1', utilization: usage.gpu1 ?? 0, memoryTotal: 1, memoryUsed: 0, memoryUtilization: 0 }
         ]
     },
-    ollama: { timestamp: 0, isRunning: false, loadedModels: [], availableModels: [] },
-    network: { timestamp: 0, interfaces: {} },
-    disks: { timestamp: 0, disks: [] }
+    ollama: { timestamp: 0, isRunning: false, loadedModels: [], availableModels: [] }
 });
 
 const source = new MockMetricsSource();
@@ -47,7 +45,8 @@ describe('TUI rendering pipeline', () => {
         expect(cpuMemRow).toBeDefined(); // row 1: CPU | MEM
         expect(gpuRow).toBeDefined(); // row 2: GPU0 | GPU1
         expect(lines.indexOf(cpuMemRow!)).toBeLessThan(lines.indexOf(gpuRow!)); // gpus below
-        for (const absent of ['OLLAMA', 'NET', 'DISK']) {
+        expect(out).toMatch(/OLLAMA  llama3:8b \(Q4_K_M\) · 1\/3 loaded/); // info row under the graphs
+        for (const absent of ['NET', 'DISK']) {
             expect(out).not.toContain(absent);
         }
     });

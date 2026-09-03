@@ -11,7 +11,7 @@ describe('data specification', () => {
     it('producer emits every specified section', async () => {
         snapshot = await source.getAllMetrics();
         expect(Object.keys(snapshot).sort()).toEqual(
-            ['cpu', 'disks', 'gpu', 'memory', 'network', 'ollama', 'timestamp'].sort()
+            ['cpu', 'gpu', 'memory', 'ollama', 'timestamp'].sort()
         );
     });
 
@@ -30,7 +30,6 @@ describe('data specification', () => {
         const mem = await source.getMemoryMetrics();
         expect(mem.used).toBe(mem.total - mem.available);
         expect(mem.allocationRatio).toBeCloseTo((mem.used / mem.total) * 100, 6);
-        expect(mem.swapAllocationRatio).toBeCloseTo((mem.swapUsed / mem.swapTotal) * 100, 6);
     });
 
     it('gpu: per-device utilisation bounded, indices contiguous', async () => {
@@ -53,32 +52,13 @@ describe('data specification', () => {
         if (om.currentModel) expect(om.loadedModels.map((m) => m.name)).toContain(om.currentModel.name);
     });
 
-    it('disks: usagePercent consistent with used/total', async () => {
-        const disks = await source.getDiskMetrics();
-        for (const d of disks.disks) {
-            expect(d.usagePercent).toBeCloseTo((d.used / d.total) * 100, 6);
-            expect(d.used + d.available).toBe(d.total);
-        }
-    });
-
-    it('network: rates and counters are non-negative', async () => {
-        const net = await source.getNetworkMetrics();
-        for (const iface of Object.values(net.interfaces)) {
-            for (const v of [iface.rxBytes, iface.txBytes, iface.rxSpeed, iface.txSpeed]) {
-                expect(v).toBeGreaterThanOrEqual(0);
-            }
-        }
-    });
-
     it('sections are timestamp-aligned (cohesion of a snapshot)', async () => {
         snapshot = await source.getAllMetrics();
         const stamps = [
             snapshot.cpu.timestamp,
             snapshot.memory.timestamp,
             snapshot.gpu.timestamp,
-            snapshot.ollama.timestamp,
-            snapshot.network.timestamp,
-            snapshot.disks.timestamp
+            snapshot.ollama.timestamp
         ];
         for (const t of stamps) expect(Math.abs(t - snapshot.timestamp)).toBeLessThan(1000);
     });
@@ -95,7 +75,7 @@ describe('data specification', () => {
             expect(res.status).toBe(200);
             const body = (await res.json()) as AllMetrics;
             expect(Object.keys(body).sort()).toEqual(
-                ['cpu', 'disks', 'gpu', 'memory', 'network', 'ollama', 'timestamp'].sort()
+                ['cpu', 'gpu', 'memory', 'ollama', 'timestamp'].sort()
             );
             expect(body.cpu.systemUsage).toBeLessThanOrEqual(100);
             expect(body.memory.used).toBe(body.memory.total - body.memory.available);

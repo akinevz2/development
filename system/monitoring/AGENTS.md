@@ -8,19 +8,23 @@ system/monitoring/
 ├── AGENTS.md                     # These development instructions
 ├── package.json                  # Root tooling: npm test / npm run typecheck
 ├── tsconfig.json
+├── scripts/
+│   ├── install-service.ps1       # Register collector as a per-user logon task (Task Scheduler)
+│   └── uninstall-service.ps1     # Stop + remove the task
 ├── src/
 │   ├── spec/
 │   │   └── metrics.types.ts      # Canonical metrics specification — SINGLE SOURCE OF TRUTH
 │   ├── collector/src/
-│   │   ├── index.ts              # Service entrypoint: REST + WS on port 11367
+│   │   ├── index.ts              # Service entrypoint: REST + WS + viewer on port 11367
 │   │   ├── api.ts                # REST + SSE server over a MetricsSource
+│   │   ├── static.ts             # Serves the built viewer (dist) at / and /assets/*
 │   │   ├── ws.ts                 # WebSocket transport (single-client, localhost-only)
 │   │   ├── mock-source.ts        # Deterministic mock producer (non-Windows fallback)
-│   │   └── windows/              # TO IMPLEMENT — see "Implementation Plan"
+│   │   └── windows/              # Windows producer (probe-backed MetricsSource)
 │   │       ├── windows-metrics-source.ts  # MetricsSource for Windows (assembles probes)
 │   │       ├── gpu-probe.ts               # nvidia-smi query + CSV parsing (variable GPU count)
 │   │       ├── ollama-probe.ts            # Ollama HTTP probe (127.0.0.1:11434)
-│   │       └── sys-probes.ts              # CPU deltas, memory/swap, network, disks
+│   │       └── sys-probes.ts              # CPU deltas + plain-RAM memory
 │   └── viewer/
 │       ├── package.json           # Vite + React + xterm.js (web build)
 │       ├── vite.config.ts
@@ -42,28 +46,35 @@ system/monitoring/
 └── tests/
     ├── spec/data-spec.test.ts      # Specification structure + invariants + API contract
     ├── collector/ws-server.test.ts # WS transport: single-client + localhost policies
-    ├── collector/windows-collector.test.ts # TO IMPLEMENT — fixture-driven probe/parsing tests
-    ├── terminal/tui.test.ts        # Five-graph layout (CPU, MEM, GPU0–GPU2 row) + empty-state
+    ├── collector/windows-collector.test.ts # DEFERRED — fixture-driven probe/parsing tests
+    ├── terminal/tui.test.ts        # Shared-frame layout (CPU|MEM row, GPU rows, OLLAMA info) + empty-state
     └── terminal/tui-connect.test.ts # Connection popup, editing, live end-to-end
 ```
 
-## STATUS — Ready for implementation: Windows collector + variable GPU graphs
+## STATUS — Windows collector and viewer layout implemented
 
-Everything downstream of the `MetricsSource` contract is done and tested:
-the API server, the WebSocket transport, the mock producer, the TUI, and
-the web viewer. Two work items remain. **Implementation runs on the
-Windows partition of the development workstation** (npm is available in
-both WSL and Windows there — always work on the Windows side). The
-deployment targets are that workstation and a remote Windows system with
-TWO NVIDIA GPUs; the GPU count must be treated as VARIABLE (collect 1..N,
-display up to 3).
+Everything is implemented and tested: the API server, the WebSocket
+transport, the mock producer, the Windows producer (nvidia-smi GPU,
+Ollama HTTP, CPU deltas, plain-RAM memory), the TUI, and the web viewer.
+**Scope**: CPU usage, RAM usage, GPU usage and Ollama model information —
+network and disk collection were deliberately removed from the spec.
+**Implementation runs on the Windows partition of the development
+workstation** (npm is available in both WSL and Windows there — always
+work on the Windows side). The deployment targets are that workstation
+and a remote Windows system with TWO NVIDIA GPUs; the GPU count must be
+treated as VARIABLE (collect 1..N, display up to 3).
 
-### Work item 1 — `WindowsMetricsSource` (the real producer)
+Remaining known work: fixture-driven probe/parsing tests
+(`tests/collector/windows-collector.test.ts`) are deferred — see the
+Testing note in work item 1.
 
-Implement `src/collector/src/windows/windows-metrics-source.ts` as a
-`MetricsSource` (contract: `src/spec/metrics.types.ts`). Compose it from
-independently testable probes (`gpu-probe.ts`, `ollama-probe.ts`,
-`sys-probes.ts`) per the structure tree above.
+### Work item 1 — `WindowsMetricsSource` (the real producer) — IMPLEMENTED
+
+`src/collector/src/windows/windows-metrics-source.ts` is a `MetricsSource`
+(contract: `src/spec/metrics.types.ts`) composed from independently
+testable probes (`gpu-probe.ts`, `ollama-probe.ts`, `sys-probes.ts`) per
+the structure tree above. Verified live on this workstation (2× NVIDIA,
+real Ollama) via `npm run collector` + the REST API.
 
 **Non-goal**: AMD/Intel GPU probing. Where no NVIDIA adapter is present,
 `getGPUMetrics()` degrades gracefully to `{ totalGPUs: 0, gpuUsage: [] }`.
@@ -75,13 +86,13 @@ independently testable probes (`gpu-probe.ts`, `ollama-probe.ts`,
   (Node strips types at load). No enums, no namespaces, no constructor
   parameter properties. Relative imports keep explicit `.ts` extensions.
 - Node ≥ 22.4 required (type stripping is stable AND the TUI uses the
-  global `WebSocket` client; `fs.promises.statfs` needs ≥ 18.15).
+  global `WebSocket` client).
 - No new runtime dependencies: Node stdlib (`node:child_process`,
-  `node:os`, `node:fs/promises`, global `fetch`) + the existing `ws`.
+  `node:os`, global `fetch`) + the existing `ws`.
 - Probes must never throw out of `getAllMetrics()` — a failing probe
   degrades its section to zeros/empty and logs once per state change.
 - First poll must return valid data (the API server polls at start, before
-  any delta window exists): CPU/network speeds are 0 on the first sample.
+  any delta window exists): CPU usage is 0 on the first sample.
 
 **Data sources per metric (Windows)**
 
@@ -92,17 +103,16 @@ independently testable probes (`gpu-probe.ts`, `ollama-probe.ts`,
    asserted to 6 decimals); `userUsage = Δuser/Δtotal·100` (informational
    subset of busy). `threadCount = os.cpus().length`. `coreCount` from
    physical cores (WMI `Win32_Processor.NumberOfCores`, summed over
-   sockets) with fallback to `NUMBER_OF_PROCESSORS`. `loadAverage`:
-   omit on Windows (optional in the spec).
+   sockets, resolved once and cached) with fallback to
+   `NUMBER_OF_PROCESSORS`. `loadAverage`: omit on Windows (optional in
+   the spec).
 
-2. **Memory** (`sys-probes.ts`) — `total = os.totalmem()`,
-   `available = os.freemem()` (on Windows this is avail-phys incl.
-   standby), `used = total − available`, `free = available`
-   (documented approximation). Swap: `Get-CimInstance Win32_PageFileUsage`
-   → sum `AllocatedBaseSize` (MiB→bytes) = `swapTotal`, sum `CurrentUsage`
-   = `swapUsed`; no pagefile → 0 and ratios 0 (guard division).
-   `cached` from `Win32_PerfRawData_PerfOS_Memory.CacheBytes`; `buffers`
-   has no Windows analog → 0.
+2. **Memory** (`sys-probes.ts`) — plain RAM only, zero WMI:
+   `total = os.totalmem()`, `available = os.freemem()` (on Windows this
+   is avail-phys incl. standby), `used = total − available`,
+   `free = available` (documented approximation),
+   `allocationRatio = used/total·100`. Swap/cached/buffers were removed
+   from the spec (scope: RAM usage only).
 
 3. **GPU** (`gpu-probe.ts`) — spawn per poll:
 
@@ -122,49 +132,32 @@ independently testable probes (`gpu-probe.ts`, `ollama-probe.ts`,
 4. **Ollama** (`ollama-probe.ts`) — `GET http://127.0.0.1:11434/api/tags`
    → `availableModels` (`name`, `size` bytes, `details.quantization_level`
    → `quantization`); `GET .../api/ps` → `loadedModels` (resident now);
-   `currentModel` = first loaded. ~1.5 s abort timeout per request.
-   Offline/timeout → `isRunning: false`, empty arrays, `error` message.
-   Preserve the invariant `loadedModels ⊆ availableModels` by filtering
-   loaded names against the tag list.
+   `currentModel` = first loaded. ~1.5 s abort timeout, both requests in
+   parallel. Offline/timeout → `isRunning: false`, empty arrays, `error`
+   message. Preserve the invariant `loadedModels ⊆ availableModels` by
+   filtering loaded names against the tag list.
 
-5. **Network** (`sys-probes.ts`) —
-   `Get-CimInstance Win32_PerfRawData_Tcpip_NetworkInterface` → per
-   instance `Name`, `BytesReceivedPersec`, `BytesSentPersec`; despite the
-   suffix these are PERF_COUNTER_BULK_COUNT raw values = CUMULATIVE bytes.
-   `rxBytes`/`txBytes` = raw values; `rxSpeed`/`txSpeed` = Δraw/Δt against
-   the previous poll (0 on first sample). Skip `isatap`/`Loopback`/pseudo
-   instances. Each WMI call spawns PowerShell (`-NoProfile -NonInteractive`,
-   `ConvertTo-Json -Compress`); consolidate swap+cache into ONE invocation.
-   Optional later optimization: one persistent helper process streaming
-   JSON lines instead of per-poll spawns.
-
-6. **Disks** (`sys-probes.ts`) — `fs.promises.statfs` per fixed drive
-   `A:\`–`Z:\` (skip on ENOENT/EACCES). `total = blocks·bsize`,
-   `available = bavail·bsize`, `used = (blocks − bfree)·bsize`,
-   `usagePercent = used/total·100`, `mount = "C:\"` form.
-
-**Testing** — fixture-driven, no real GPU required: capture real
-`nvidia-smi` output as a committed fixture (e.g.
+**Testing (deferred)** — fixture-driven, no real GPU required: capture
+real `nvidia-smi` output as a committed fixture (e.g.
 `tests/fixtures/nvidia-smi-2gpu.csv`) and unit-test the parser against 0,
-1, 2, 3+ GPU samples; same pattern for WMI JSON samples. CPU delta math
-tested with synthetic `os.cpus()`-shaped snapshots. Live probes run under
+1, 2, 3+ GPU samples; CPU delta math tested with synthetic
+`os.cpus()`-shaped snapshots. Live probes run under
 `describe.skipIf(process.platform !== 'win32')`.
 
-### Work item 2 — Variable GPU graph layout (viewer)
+### Work item 2 — Variable GPU graph layout (viewer) — IMPLEMENTED
 
-Rework `renderFrame()` in `src/viewer/src/graphs.ts` (shared by TUI and
-web viewer, so both update together):
+`src/viewer/src/graphs.ts` (`MetricsGraphRenderer`, shared by TUI and web
+viewer, so both update together):
 
-- Up to FIVE graphs: **CPU** (row 1), **MEM** (row 2), then
-  **GPU0 + GPU1 + GPU2 side by side on ONE shared row**.
-- The GPU row contains only GPUs present in `gpuUsage` (capped at 3);
-  each block shows the utilisation bar, %, and VRAM `used/total`.
-- Disconnected/empty snapshot renders all five placeholders with empty
-  bars (stable layout).
-- Update `tests/terminal/tui.test.ts`: empty-state must assert GPU0, GPU1,
-  GPU2 placeholders; add variable-count cases (1-GPU snapshot → no GPU1/
-  GPU2 blocks; 2-GPU → both on one row); keep the "no OLLAMA/NET/DISK"
-  assertions and the shared-pipeline equality test.
+- Row 1: **CPU** and **MEM** side by side (half width each); GPU
+  graph(s) below — full width with one GPU, side by side with two,
+  otherwise stacked full width.
+- Only GPUs present in `gpuUsage` are drawn (variable 1..N).
+- An **OLLAMA information row** (text, not a graph) follows the graphs:
+  current model + quantization + loaded/available counts, `offline`
+  when unreachable, `—` placeholder while disconnected (stable layout).
+- Graphs are btop-style FILLED braille time-series; disconnected state
+  renders empty boxes (stable layout).
 
 ### Wiring & acceptance
 
@@ -196,9 +189,15 @@ web viewer, so both update together):
   boxes as placeholders until data arrives). Graphs are btop-style
   FILLED braille time-series (newest sample in the rightmost column,
   older samples pushed left, area under the curve solid), rendered
-  empty while disconnected. The collector/API may still serve the full
-  specification — ollama, network and disks are data-level only and
-  intentionally not graphed.
+  empty while disconnected. An OLLAMA information row (current model +
+  loaded/available counts, text only) follows the graphs; the ollama
+  section is never graphed, and network/disks are no longer collected.
+- **Viewer hosting**: the collector serves the built web viewer
+  (`src/viewer/dist`) at `/` and `/assets/*` on the same port and
+  origin as the API — the browser loads the page from the collector
+  and then talks REST to it; no separate webserver (no vite preview /
+  4173). Rebuild with `npm run build` in `src/viewer` and reload;
+  a missing `dist` degrades to API-only with a startup hint.
 - **Theming**: the web viewer is skinned with the Windows XP theme. The
   `xp.css` npm package (0.2.6) is outdated and its build system carries
   vulnerabilities, so the prebuilt `dist/XP.css` + font files are
@@ -218,7 +217,7 @@ web viewer, so both update together):
 - Producers implement the `MetricsSource` contract; the API server, mock
   source, and any future Windows collector all satisfy it.
 - Units are documented in the spec header: timestamps in epoch ms, byte
-  quantities in bytes, rates in bytes/s, percentages 0–100.
+  quantities in bytes, percentages 0–100.
 - Invariants guaranteed by producers and asserted by tests:
   `used = total − available`, `systemUsage + idleUsage = totalUsage`,
   utilisation ratios in 0–100, loaded models ⊆ available models.
@@ -237,15 +236,12 @@ web viewer, so both update together):
 1. **CPU**
    - Total CPU usage percentage
    - Core-specific usage (if available)
-   - Load average
    - Thread count
 
 2. **Memory**
    - Total memory
    - Used memory
    - Available memory
-   - Swap usage
-   - Memory usage breakdown (cached, buffers)
 
 3. **GPU & Ollama**
    - Which models are loaded
@@ -253,17 +249,9 @@ web viewer, so both update together):
    - Total GPU utilization
    - Process-specific memory allocation
 
-4. **Disks**
-   - I/O read/write speeds
-   - Storage usage percentages
-
-5. **Network**
-   - Upload/download speeds
-   - Active interfaces
-
 ### API Design
 
-The collector should expose a REST API with endpoint structure:
+The collector exposes a REST API with endpoint structure:
 
 ```
 GET  /api/metrics          # All metrics at once
@@ -271,20 +259,32 @@ GET  /api/cpu              # CPU metrics
 GET  /api/memory           # Memory metrics
 GET  /api/gpu              # GPU metrics
 GET  /api/ollama          # Ollama-specific metrics
-GET  /api/disks           # Disk metrics
-GET  /api/network         # Network metrics
 ```
 
 Response format: JSON with timestamped data for historical queries.
 
 ### Windows Service Registration
 
-Use `node-windows` or `node-service`:
+Implemented via the Task Scheduler (per-user logon task, no admin
+required) in `scripts/`:
 
-1. Create service configuration script
-2. Install as Windows service
-3. Test startup and graceful shutdown
-4. Verify API is accessible
+- `scripts\install-service.ps1` — registers `SystemMonitorCollector`:
+  starts at logon (hidden), single-instance (`IgnoreNew`), restarts on
+  failure (3×, 1 min apart), no execution time limit, logs appended to
+  `%LOCALAPPDATA%\system-monitoring\collector.log`. `-StartNow` starts
+  the collector immediately after registering.
+- `scripts\uninstall-service.ps1` — stops the task (killing its node
+  process tree) and unregisters it.
+
+Because it is a logon task, the collector starts at sign-in and stops
+when the session ends. A real Windows service (`node-windows` or
+`node-service`, boot-time and session-independent) remains the long-term
+alternative; the npm packages are deliberately not added as dependencies
+until that switch happens.
+
+1. Register with the install script
+2. Test startup at logon and graceful shutdown at logoff
+3. Verify API is accessible on 127.0.0.1
 
 ### Error Handling
 

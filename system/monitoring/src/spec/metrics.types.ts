@@ -6,7 +6,6 @@
  * Units:
  *  - timestamps .......... unix epoch milliseconds
  *  - byte quantities ..... bytes
- *  - rates ............... bytes/second
  *  - percentages ......... 0–100 (floating point)
  */
 
@@ -34,14 +33,8 @@ export interface MemoryMetrics {
     used: number;
     available: number;
     free: number;
-    swapTotal: number;
-    swapUsed: number;
-    cached: number;
-    buffers: number;
     /** used / total * 100 */
     allocationRatio: number;
-    /** swapUsed / swapTotal * 100 */
-    swapAllocationRatio: number;
 }
 
 export interface GPUInfo {
@@ -80,39 +73,12 @@ export interface OllamaMetrics {
     error?: string;
 }
 
-export interface NetworkMetrics {
-    timestamp: number;
-    interfaces: {
-        [name: string]: {
-            /** bytes since boot */
-            rxBytes: number;
-            txBytes: number;
-            /** bytes/second */
-            rxSpeed: number;
-            txSpeed: number;
-        };
-    };
-}
-
-export interface DiskMetrics {
-    timestamp: number;
-    disks: {
-        mount: string;
-        total: number;
-        used: number;
-        available: number;
-        usagePercent: number;
-    }[];
-}
-
 export interface AllMetrics {
     timestamp: number;
     cpu: CPUMetrics;
     memory: MemoryMetrics;
     gpu: GPUMetrics;
     ollama: OllamaMetrics;
-    network: NetworkMetrics;
-    disks: DiskMetrics;
 }
 
 /** Contract every metrics producer must satisfy (real collector or mock). */
@@ -121,8 +87,6 @@ export interface MetricsSource {
     getMemoryMetrics(): Promise<MemoryMetrics>;
     getGPUMetrics(): Promise<GPUMetrics>;
     getOllamaMetrics(): Promise<OllamaMetrics>;
-    getNetworkMetrics(): Promise<NetworkMetrics>;
-    getDiskMetrics(): Promise<DiskMetrics>;
     getAllMetrics(): Promise<AllMetrics>;
 }
 
@@ -148,16 +112,9 @@ export function createEmptyMetrics(): AllMetrics {
             used: 0,
             available: 0,
             free: 0,
-            swapTotal: 0,
-            swapUsed: 0,
-            cached: 0,
-            buffers: 0,
-            allocationRatio: 0,
-            swapAllocationRatio: 0
+            allocationRatio: 0
         },
         gpu: { timestamp: 0, totalGPUs: 0, gpuUsage: [] },
-        ollama: { timestamp: 0, isRunning: false, loadedModels: [], availableModels: [] },
-        network: { timestamp: 0, interfaces: {} },
-        disks: { timestamp: 0, disks: [] }
+        ollama: { timestamp: 0, isRunning: false, loadedModels: [], availableModels: [] }
     };
 }

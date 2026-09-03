@@ -113,7 +113,8 @@ describe('TUI <-> collector end-to-end', () => {
             expect(frame).toContain(header);
         }
         expect(frame).toMatch(/[\u2801-\u28ff]/); // non-blank braille: time-series data drawn
-        for (const absent of ['OLLAMA', 'NET', 'DISK']) {
+        expect(frame).toMatch(/OLLAMA  .+ · 1\/3 loaded/); // ollama info row: current model + counts
+        for (const absent of ['NET', 'DISK']) {
             expect(frame).not.toContain(absent);
         }
     });

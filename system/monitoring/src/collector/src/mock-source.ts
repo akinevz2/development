@@ -4,9 +4,7 @@ import type {
     CPUMetrics,
     MemoryMetrics,
     GPUMetrics,
-    OllamaMetrics,
-    NetworkMetrics,
-    DiskMetrics
+    OllamaMetrics
 } from '../../spec/metrics.types.ts';
 
 const GiB = 1024 ** 3;
@@ -50,20 +48,13 @@ export class MockMetricsSource implements MetricsSource {
         const total = 32 * GiB;
         const used = Math.round(total * (0.5 + 0.15 * this.base()));
         const available = total - used;
-        const swapTotal = 8 * GiB;
-        const swapUsed = Math.round(swapTotal * 0.1);
         return {
             timestamp: Date.now(),
             total,
             used,
             available,
             free: available,
-            swapTotal,
-            swapUsed,
-            cached: Math.round(total * 0.2),
-            buffers: Math.round(total * 0.02),
-            allocationRatio: (used / total) * 100,
-            swapAllocationRatio: (swapUsed / swapTotal) * 100
+            allocationRatio: (used / total) * 100
         };
     }
 
@@ -98,38 +89,13 @@ export class MockMetricsSource implements MetricsSource {
         };
     }
 
-    async getNetworkMetrics(): Promise<NetworkMetrics> {
-        return {
-            timestamp: Date.now(),
-            interfaces: {
-                eth0: { rxBytes: 10 * GiB, txBytes: 2 * GiB, rxSpeed: 1.2 * 1024 ** 2, txSpeed: 0.3 * 1024 ** 2 }
-            }
-        };
-    }
-
-    async getDiskMetrics(): Promise<DiskMetrics> {
-        const mk = (mount: string, total: number, pct: number) => ({
-            mount,
-            total,
-            used: Math.round(total * (pct / 100)),
-            available: Math.round(total * (1 - pct / 100)),
-            usagePercent: pct
-        });
-        return {
-            timestamp: Date.now(),
-            disks: [mk('C:\\', 512 * GiB, 62), mk('/', 256 * GiB, 38)]
-        };
-    }
-
     async getAllMetrics(): Promise<AllMetrics> {
         return {
             timestamp: Date.now(),
             cpu: await this.getCpuMetrics(),
             memory: await this.getMemoryMetrics(),
             gpu: await this.getGPUMetrics(),
-            ollama: await this.getOllamaMetrics(),
-            network: await this.getNetworkMetrics(),
-            disks: await this.getDiskMetrics()
+            ollama: await this.getOllamaMetrics()
         };
     }
 }

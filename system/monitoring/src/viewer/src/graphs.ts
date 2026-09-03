@@ -8,8 +8,9 @@ import type { AllMetrics } from '../../spec/metrics.types.ts';
  * full width with one GPU, side by side with two, otherwise stacked
  * full width. Graphs are FILLED braille time-series (newest sample in
  * the rightmost column, older samples pushed left, area under the curve
- * solid). Only cpu, mem and reported GPUs are graphed; the collector/API
- * may still serve the full specification.
+ * solid). An OLLAMA information row follows the graphs: current model,
+ * quantization and loaded/available counts. Only cpu, mem and reported
+ * GPUs are graphed; the ollama section is displayed as text, not drawn.
  */
 
 export interface GraphGeometry {
@@ -49,6 +50,21 @@ const BRAILLE_BLANK = '\u2800';
 const pct = (v: number): string => `${(v * 100).toFixed(1)}%`;
 
 /**
+ * One-line Ollama summary for the information row under the graphs:
+ * current model (with quantization) plus loaded/available counts, or
+ * `offline` when the service is unreachable.
+ */
+function ollamaInfoLine(ollama: AllMetrics['ollama'] | undefined): string {
+    if (!ollama || !ollama.isRunning) return 'OLLAMA  offline';
+    const loaded = ollama.loadedModels.length;
+    const available = ollama.availableModels.length;
+    const current = ollama.currentModel
+        ? `${ollama.currentModel.name}${ollama.currentModel.quantization ? ` (${ollama.currentModel.quantization})` : ''}`
+        : 'none loaded';
+    return `OLLAMA  ${current} · ${loaded}/${available} loaded`;
+}
+
+/**
  * Builds a flicker-free, scroll-free repaint sequence for a rendered
  * frame:
  *  - wrapped in synchronized-output markers (DEC 2026) so supporting
@@ -75,6 +91,7 @@ export class MetricsGraphRenderer {
     private readonly mem: number[] = [];
     private readonly gpuSeries = new Map<number, number[]>();
     private gpuCount = 0;
+    private ollama: string | null = null;
     private timestamp: number | null = null;
 
     constructor(geometry: Partial<GraphGeometry> = {}) {
@@ -118,6 +135,7 @@ export class MetricsGraphRenderer {
             }
             this.pushTo(series, clamp01(g.utilization / 100), gpuCap);
         }
+        this.ollama = ollamaInfoLine(metrics.ollama);
     }
 
     /** Drops all history — graphs render empty until the next push. */
@@ -126,6 +144,7 @@ export class MetricsGraphRenderer {
         this.mem.length = 0;
         this.gpuSeries.clear();
         this.gpuCount = 0;
+        this.ollama = null;
         this.timestamp = null;
     }
 
@@ -153,6 +172,9 @@ export class MetricsGraphRenderer {
             }
         }
 
+        // information row (not a graph): Ollama model status; placeholder
+        // keeps the layout stable while disconnected
+        lines.push('', this.ollama ?? 'OLLAMA  —');
         return lines.map((l) => l + '\n').join('');
     }
 

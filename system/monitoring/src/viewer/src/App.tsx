@@ -20,7 +20,7 @@ export function App({ source, pollMs = 2000 }: AppProps): JSX.Element {
         <div className="desktop">
             <div className="window monitor-window">
                 <div className="title-bar">
-                    <div className="title-bar-text">System Monitor — cpu / mem / gpu0 / gpu1</div>
+                    <div className="title-bar-text">System Monitor — cpu · mem · gpu · ollama</div>
                     <div className="title-bar-controls">
                         <button aria-label="Minimize" />
                         <button aria-label="Maximize" />
@@ -31,9 +31,9 @@ export function App({ source, pollMs = 2000 }: AppProps): JSX.Element {
                     <div className="terminal-field" ref={containerRef} />
                 </div>
                 <div className="status-bar">
-                    <div className="status-bar-field">Destination: ws://localhost:11367/ws</div>
+                    <div className="status-bar-field">Collector: http://localhost:11367</div>
                     <div className="status-bar-field">{live ? 'Receiving data' : 'No data'}</div>
-                    <div className="status-bar-field">Graphs: cpu, mem, gpu0, gpu1</div>
+                    <div className="status-bar-field">Graphs: cpu, mem, gpu · ollama info</div>
                 </div>
             </div>
             <div className="taskbar">

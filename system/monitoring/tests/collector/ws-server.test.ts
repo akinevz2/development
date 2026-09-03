@@ -55,7 +55,7 @@ describe('collector WebSocket transport', () => {
             expect(a.messages.length).toBeGreaterThanOrEqual(2); // initial push + interval updates
             const snapshot = JSON.parse(a.messages[0]) as AllMetrics;
             expect(Object.keys(snapshot).sort()).toEqual(
-                ['cpu', 'disks', 'gpu', 'memory', 'network', 'ollama', 'timestamp'].sort()
+                ['cpu', 'gpu', 'memory', 'ollama', 'timestamp'].sort()
             );
             expect(snapshot.cpu.systemUsage).toBeLessThanOrEqual(100);
             a.ws.close();

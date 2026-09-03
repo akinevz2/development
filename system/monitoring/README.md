@@ -5,9 +5,9 @@ Dual-component monitoring system for cross-platform resource tracking:
 ## Components
 
 ### 1. Collector (Windows)
-- System metrics (CPU, memory, disks, network)
+- System metrics (CPU, RAM, GPU)
 - Ollama server status (running models, memory usage, GPU)
-- Exposes HTTP API for consumption
+- Exposes HTTP API and hosts the built dashboard (same port, same origin)
 
 ### 2. Viewer
 - Polls collector API
@@ -17,7 +17,7 @@ Dual-component monitoring system for cross-platform resource tracking:
 ## Technology Stack
 
 - **Spec**: `src/spec/metrics.types.ts` — single source of truth for all metric shapes
-- **Collector**: Node.js (≥ 22.4) + TypeScript (API + WS transport implemented; Windows producer: implementation plan in AGENTS.md)
+- **Collector**: Node.js (≥ 22.4) + TypeScript (API + WS transport + Windows producer via nvidia-smi/Ollama/WMI probes)
 - **Viewer (web)**: Vite + React (TSX, functional components + custom hooks) with an xterm.js pseudo-terminal, skinned with the vendored Windows XP theme (`src/viewer/src/vendor/xp/` — no npm dependency)
 - **Viewer (TUI)**: plain Node renderer sharing the same `renderFrame()` graphs
 - **Tests**: Vitest — `npm test`, `npm run typecheck`
@@ -30,16 +30,24 @@ system/monitoring/
 ├── AGENTS.md                     # Development instructions
 ├── package.json                  # Root tooling (vitest, tsc)
 ├── tsconfig.json
+├── scripts/
+│   ├── install-service.ps1       # Register collector as a per-user logon task (Task Scheduler)
+│   └── uninstall-service.ps1     # Stop + remove the task
 ├── src/
 │   ├── spec/
 │   │   └── metrics.types.ts      # Canonical metrics specification (single source of truth)
-│   ├── collector/                # Windows-side collector (API + WS done; producer: see AGENTS.md)
+│   ├── collector/                # Windows-side collector (API + WS + Windows producer)
 │   │   └── src/
-│   │       ├── index.ts            # Entrypoint: REST + WS on port 11367
+│   │       ├── index.ts            # Entrypoint: REST + WS + viewer on port 11367
 │   │       ├── api.ts              # REST + SSE server over any MetricsSource
+│   │       ├── static.ts           # Serves the built viewer (dist) at / and /assets/*
 │   │       ├── ws.ts               # WebSocket transport (single-client, localhost-only)
 │   │       ├── mock-source.ts      # Deterministic mock producer (non-Windows fallback)
-│   │       └── windows/            # TO IMPLEMENT — plan in AGENTS.md
+│   │       └── windows/            # Windows producer (probe-backed MetricsSource)
+│   │           ├── windows-metrics-source.ts  # MetricsSource for Windows (assembles probes)
+│   │           ├── gpu-probe.ts               # nvidia-smi query + CSV parsing
+│   │           ├── ollama-probe.ts            # Ollama HTTP probe
+│   │           └── sys-probes.ts              # CPU deltas + plain-RAM memory
 │   └── viewer/
 │       ├── package.json           # Vite + React + xterm.js (web build)
 │       ├── vite.config.ts
@@ -58,7 +66,7 @@ system/monitoring/
 └── tests/
     ├── spec/data-spec.test.ts      # Specification structure + invariants + API contract
     ├── collector/ws-server.test.ts # WS transport: single-client + localhost policies
-    ├── collector/windows-collector.test.ts # TO IMPLEMENT — fixture-driven probe/parsing tests
+    ├── collector/windows-collector.test.ts # DEFERRED — fixture-driven probe/parsing tests
     ├── terminal/tui.test.ts        # Five-graph layout (CPU, MEM, GPU0–GPU2 row) + empty-state
     └── terminal/tui-connect.test.ts # Connection popup, editing, live end-to-end
 ```
@@ -70,15 +78,12 @@ system/monitoring/
 1. **CPU**
    - Total CPU usage percentage
    - Core-specific usage (if available)
-   - Load average
    - Thread count
 
 2. **Memory**
    - Total memory
    - Used memory
    - Available memory
-   - Swap usage
-   - Memory usage breakdown (cached, buffers)
 
 3. **GPU & Ollama**
    - Which models are loaded
@@ -86,43 +91,46 @@ system/monitoring/
    - Total GPU utilization
    - Process-specific memory allocation
 
-4. **Disks**
-   - I/O read/write speeds
-   - Storage usage percentages
-
-5. **Network**
-   - Upload/download speeds
-   - Active interfaces
-
 ### API Design
 
-The collector should expose a REST API with endpoint structure:
+The collector exposes a REST API with endpoint structure:
 
 ```
+GET  /                      # The built web viewer (dashboard)
 GET  /api/metrics          # All metrics at once
 GET  /api/cpu              # CPU metrics
 GET  /api/memory           # Memory metrics
 GET  /api/gpu              # GPU metrics
 GET  /api/ollama          # Ollama-specific metrics
-GET  /api/disks           # Disk metrics
-GET  /api/network         # Network metrics
 ```
 
 Response format: JSON with timestamped data for historical queries.
 
+The collector hosts the built dashboard itself: build the viewer once
+(`npm run build` in `src/viewer`), then open `http://localhost:11367/` —
+the page is served on the collector's port and origin, and afterwards
+communicates only with the collector (REST). No separate webserver is
+needed.
+
 The collector also streams snapshots over **WebSocket** at `ws://<host>:11367/ws`:
 single-client (first connection wins; others are closed with code 1013 until it
 disconnects), **localhost-only**, pushed on the metrics interval. Frontends
-render up to FIVE graphs: CPU, MEM, then GPU0–GPU2 side by side on one row.
+render CPU + MEM side by side, GPU graph(s) below (only reported GPUs, up to
+3+), and an OLLAMA information row with the current model and loaded/available
+counts.
 
 ### Windows Service Registration
 
-Use `node-windows` or `node-service`:
+Implemented via the Task Scheduler (per-user logon task, no admin
+required) in `scripts/`:
 
-1. Create service configuration script
-2. Install as Windows service
-3. Test startup and graceful shutdown
-4. Verify API is accessible
+- `scripts\install-service.ps1` — registers the collector as a hidden
+  logon task (`-StartNow` to start immediately)
+- `scripts\uninstall-service.ps1` — stops and removes the task
+
+Because it is a logon task, the collector starts at sign-in and stops
+when the session ends; a real Windows service (`node-windows`,
+boot-time and session-independent) remains the long-term alternative.
 
 ### Error Handling
 

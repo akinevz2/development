@@ -4,8 +4,6 @@ import type {
     MemoryMetrics,
     GPUMetrics,
     OllamaMetrics,
-    NetworkMetrics,
-    DiskMetrics,
     AllMetrics
 } from '../../spec/metrics.types.ts';
 
@@ -33,14 +31,6 @@ export class ApiMetricsSource implements MetricsSource {
 
     getOllamaMetrics(): Promise<OllamaMetrics> {
         return this.get<OllamaMetrics>('/api/ollama');
-    }
-
-    getNetworkMetrics(): Promise<NetworkMetrics> {
-        return this.get<NetworkMetrics>('/api/network');
-    }
-
-    getDiskMetrics(): Promise<DiskMetrics> {
-        return this.get<DiskMetrics>('/api/disks');
     }
 
     getAllMetrics(): Promise<AllMetrics> {

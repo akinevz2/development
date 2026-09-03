@@ -5,10 +5,9 @@ import type {
     CPUMetrics,
     MemoryMetrics,
     GPUMetrics,
-    OllamaMetrics,
-    NetworkMetrics,
-    DiskMetrics
+    OllamaMetrics
 } from '../../spec/metrics.types.ts';
+import { createStaticHandler, type StaticFileHandler } from './static.ts';
 
 export interface APIServerConfig {
     /** 0 picks an ephemeral port. */
@@ -17,6 +16,10 @@ export interface APIServerConfig {
     enableCors?: boolean;
     /** How often the collector is polled, ms. */
     metricsUpdateInterval?: number;
+    /** Built web viewer directory (`dist`); served at `/` and `/assets/*`
+     *  so the dashboard lives on the collector's port and origin. Omit to
+     *  serve the API only. */
+    staticDir?: string;
 }
 
 /** Default collector port; the TUI connection popup prefills it. */
@@ -27,9 +30,7 @@ const EMPTY: AllMetrics = {
     cpu: {} as CPUMetrics,
     memory: {} as MemoryMetrics,
     gpu: {} as GPUMetrics,
-    ollama: {} as OllamaMetrics,
-    network: {} as NetworkMetrics,
-    disks: {} as DiskMetrics
+    ollama: {} as OllamaMetrics
 };
 
 export class APIServer {
@@ -38,6 +39,7 @@ export class APIServer {
     private readonly host: string;
     private readonly enableCors: boolean;
     private readonly updateInterval: number;
+    private readonly staticHandler: StaticFileHandler | null;
     private metrics: AllMetrics = EMPTY;
     private pollTimer: NodeJS.Timeout | null = null;
     private readonly source: MetricsSource;
@@ -48,6 +50,7 @@ export class APIServer {
         this.host = config.host ?? '0.0.0.0';
         this.enableCors = config.enableCors ?? true;
         this.updateInterval = config.metricsUpdateInterval ?? 5000;
+        this.staticHandler = config.staticDir ? createStaticHandler(config.staticDir) : null;
     }
 
     private applyCors(res: http.ServerResponse): void {
@@ -82,6 +85,8 @@ export class APIServer {
             res.end();
             return;
         }
+        // the built viewer claims / and /assets/* before the API router
+        if (this.staticHandler && this.staticHandler(req, res)) return;
         switch (req.url) {
             case '/':
                 this.respondJSON(res, { status: 'ok', timestamp: Date.now() });
@@ -101,12 +106,6 @@ export class APIServer {
                 break;
             case '/api/ollama':
                 this.respondJSON(res, this.metrics.ollama);
-                break;
-            case '/api/network':
-                this.respondJSON(res, this.metrics.network);
-                break;
-            case '/api/disks':
-                this.respondJSON(res, this.metrics.disks);
                 break;
             case '/api/stream':
                 this.handleStream(req, res);
