@@ -4,13 +4,14 @@ import type { AllMetrics } from '../../spec/metrics.types.ts';
  * Shared btop-style graph renderer — the single source of graph drawing,
  * consumed identically by the TUI and the browser pseudo-terminal.
  *
- * Layout: CPU and MEM side by side on the first row; GPU graph(s) below —
- * full width with one GPU, side by side with two, otherwise stacked
- * full width. Graphs are FILLED braille time-series (newest sample in
- * the rightmost column, older samples pushed left, area under the curve
- * solid). An OLLAMA information row follows the graphs: current model,
- * quantization and loaded/available counts. Only cpu, mem and reported
- * GPUs are graphed; the ollama section is displayed as text, not drawn.
+ * Layout: CPU and MEM side by side on the first row; each reported GPU
+ * gets its own row of two half-width graphs side by side — utilisation
+ * and VRAM usage. Graphs are FILLED braille time-series (newest sample
+ * in the rightmost column, older samples pushed left, area under the
+ * curve solid). An OLLAMA information row follows the graphs: current
+ * model, quantization and loaded/available counts. Only cpu, mem and
+ * reported GPUs are graphed; the ollama section is displayed as text,
+ * not drawn.
  */
 
 export interface GraphGeometry {
@@ -26,13 +27,20 @@ export const DEFAULT_GRAPH: GraphGeometry = { width: 50, height: 6 };
  * Framebuffer sizing: derives graph geometry from a renderable area
  * (cols x rows) so a frame fills it exactly. Assumes the standard
  * layout: 1 header line + `boxRows` box rows (each `height` graph rows
- * plus 2 border lines) separated by blank lines, and side-by-side rows
- * spanning width + 5 columns (two boxes, their borders, one gap).
+ * plus 2 border lines) separated by blank lines. `boxesPerRow` is the
+ * widest row (default 4 = CPU|MEM plus a two-GPU row packing four
+ * quarter-width graphs); the width leaves room for 2 border characters
+ * per box plus 1 gap per extra box.
  */
-export function geometryFor(cols: number, rows: number, boxRows: number = 2): GraphGeometry {
+export function geometryFor(
+    cols: number,
+    rows: number,
+    boxRows: number = 2,
+    boxesPerRow: number = 4
+): GraphGeometry {
     const usable = Math.max(6, rows - 2);
     const height = Math.max(2, Math.floor((usable - (boxRows - 1)) / boxRows) - 2);
-    const width = Math.max(20, cols - 5);
+    const width = Math.max(20, cols - (2 * boxesPerRow + boxesPerRow - 1));
     return { width, height };
 }
 
@@ -89,8 +97,8 @@ export class MetricsGraphRenderer {
     private height: number;
     private readonly cpu: number[] = [];
     private readonly mem: number[] = [];
-    private readonly gpuSeries = new Map<number, number[]>();
-    private gpuCount = 0;
+    private readonly gpuUtil = new Map<number, number[]>();
+    private readonly gpuVram = new Map<number, number[]>();
     private ollama: string | null = null;
     private timestamp: number | null = null;
 
@@ -108,10 +116,12 @@ export class MetricsGraphRenderer {
 
     private retrim(): void {
         const half = this.halfWidth();
-        const gpuCap = this.gpuCount === 2 ? half : this.width;
+        // with two or more GPUs the boxes are quarter-width (4 per row)
+        const gpuCap = this.gpuUtil.size >= 2 ? this.quarterWidth() : half;
         this.trimTo(this.cpu, half);
         this.trimTo(this.mem, half);
-        for (const series of this.gpuSeries.values()) this.trimTo(series, gpuCap);
+        for (const series of this.gpuUtil.values()) this.trimTo(series, gpuCap);
+        for (const series of this.gpuVram.values()) this.trimTo(series, gpuCap);
     }
 
     private trimTo(series: number[], cap: number): void {
@@ -122,18 +132,21 @@ export class MetricsGraphRenderer {
     push(metrics: AllMetrics): void {
         this.timestamp = metrics.timestamp;
         const half = this.halfWidth();
-        this.gpuCount = metrics.gpu?.totalGPUs ?? metrics.gpu?.gpuUsage?.length ?? 0;
-        const gpuCap = this.gpuCount === 2 ? half : this.width;
+        const gpus = metrics.gpu?.gpuUsage ?? [];
+        // two or more GPUs pack four quarter-width boxes onto one row
+        const gpuCap = gpus.length >= 2 ? this.quarterWidth() : half;
 
         this.pushTo(this.cpu, (metrics.cpu?.systemUsage ?? 0) / 100, half);
         this.pushTo(this.mem, (metrics.memory?.allocationRatio ?? 0) / 100, half);
-        for (const g of metrics.gpu?.gpuUsage ?? []) {
-            let series = this.gpuSeries.get(g.index);
-            if (!series) {
-                series = [];
-                this.gpuSeries.set(g.index, series);
+        for (const g of gpus) {
+            let util = this.gpuUtil.get(g.index);
+            if (!util) {
+                util = [];
+                this.gpuUtil.set(g.index, util);
+                this.gpuVram.set(g.index, []);
             }
-            this.pushTo(series, clamp01(g.utilization / 100), gpuCap);
+            this.pushTo(util, clamp01(g.utilization / 100), gpuCap);
+            this.pushTo(this.gpuVram.get(g.index)!, clamp01((g.memoryUtilization ?? 0) / 100), gpuCap);
         }
         this.ollama = ollamaInfoLine(metrics.ollama);
     }
@@ -142,8 +155,8 @@ export class MetricsGraphRenderer {
     clear(): void {
         this.cpu.length = 0;
         this.mem.length = 0;
-        this.gpuSeries.clear();
-        this.gpuCount = 0;
+        this.gpuUtil.clear();
+        this.gpuVram.clear();
         this.ollama = null;
         this.timestamp = null;
     }
@@ -153,23 +166,23 @@ export class MetricsGraphRenderer {
         const lines = [header];
 
         const half = this.halfWidth();
-        lines.push(...this.sideBySide(
+        lines.push(...this.rowOf([
             this.boxLines('CPU', this.cpu, half),
             this.boxLines('MEM', this.mem, half)
-        ));
+        ]));
 
-        if (this.gpuCount === 1) {
-            lines.push('', ...this.boxLines('GPU0', this.gpuSeries.get(0) ?? [], this.width));
-        } else if (this.gpuCount === 2) {
-            lines.push('', ...this.sideBySide(
-                this.boxLines('GPU0', this.gpuSeries.get(0) ?? [], half),
-                this.boxLines('GPU1', this.gpuSeries.get(1) ?? [], half)
-            ));
-        } else if (this.gpuCount >= 3) {
-            lines.push('');
-            for (let i = 0; i < this.gpuCount; i++) {
-                lines.push(...this.boxLines(`GPU${i}`, this.gpuSeries.get(i) ?? [], this.width));
-            }
+        const indices = [...this.gpuUtil.keys()].sort((a, b) => a - b);
+        // 2+ GPUs: two GPUs per row — four quarter-width graphs on one
+        // line (utilisation | VRAM per GPU); a single GPU keeps its
+        // pair at half width
+        const cells = indices.length >= 2 ? this.quarterWidth() : half;
+        for (let i = 0; i < indices.length; i += 2) {
+            const chunk = indices.slice(i, i + 2);
+            const boxes = chunk.flatMap((idx) => [
+                this.boxLines(`GPU${idx} UTIL`, this.gpuUtil.get(idx) ?? [], cells),
+                this.boxLines(`GPU${idx} VRAM`, this.gpuVram.get(idx) ?? [], cells)
+            ]);
+            lines.push('', ...this.rowOf(boxes));
         }
 
         // information row (not a graph): Ollama model status; placeholder
@@ -182,18 +195,23 @@ export class MetricsGraphRenderer {
         return Math.floor(this.width / 2);
     }
 
+    private quarterWidth(): number {
+        return Math.floor(this.width / 4);
+    }
+
     private pushTo(series: number[], value: number, cap: number): void {
         series.push(clamp01(value));
         this.trimTo(series, cap);
     }
 
-    /** Zips two boxes' lines side by side, separated by one space. */
-    private sideBySide(left: string[], right: string[]): string[] {
-        const leftWidth = left[0]?.length ?? 0;
-        const rows = Math.max(left.length, right.length);
+    /** Zips any number of boxes' lines into one row, separated by one
+     *  space; boxes in a row share one cell width. */
+    private rowOf(boxes: string[][]): string[] {
+        const width = boxes[0]?.[0]?.length ?? 0;
+        const rows = Math.max(...boxes.map((b) => b.length));
         const out: string[] = [];
         for (let i = 0; i < rows; i++) {
-            out.push((left[i] ?? '').padEnd(leftWidth) + ' ' + (right[i] ?? ''));
+            out.push(boxes.map((b) => (b[i] ?? '').padEnd(width)).join(' '));
         }
         return out;
     }

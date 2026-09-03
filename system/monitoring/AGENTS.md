@@ -149,9 +149,10 @@ real `nvidia-smi` output as a committed fixture (e.g.
 `src/viewer/src/graphs.ts` (`MetricsGraphRenderer`, shared by TUI and web
 viewer, so both update together):
 
-- Row 1: **CPU** and **MEM** side by side (half width each); GPU
-  graph(s) below — full width with one GPU, side by side with two,
-  otherwise stacked full width.
+- Row 1: **CPU** and **MEM** side by side (half width each); the GPU
+  pairs pack two per row — each GPU a quarter-width
+  utilisation|VRAM pair, so two GPUs render four graphs on ONE row
+  (a single GPU keeps its pair at half width).
 - Only GPUs present in `gpuUsage` are drawn (variable 1..N).
 - An **OLLAMA information row** (text, not a graph) follows the graphs:
   current model + quantization + loaded/available counts, `offline`
@@ -183,15 +184,17 @@ viewer, so both update together):
   in `MetricsWebSocketServer`. The Windows service must bind to 127.0.0.1
   and must never expose the port beyond the host (Windows Firewall).
 - **Graph restriction & layout**: row 1 = CPU and MEM side by side
-  (half width each); GPU graph(s) below — full width with one GPU, side
-  by side with two, otherwise stacked full width one on top of the
-  other. Only GPUs actually reported by the collector are drawn (empty
-  boxes as placeholders until data arrives). Graphs are btop-style
-  FILLED braille time-series (newest sample in the rightmost column,
-  older samples pushed left, area under the curve solid), rendered
-  empty while disconnected. An OLLAMA information row (current model +
-  loaded/available counts, text only) follows the graphs; the ollama
-  section is never graphed, and network/disks are no longer collected.
+  (half width each); the GPUs pack two per row — each GPU as a
+  quarter-width utilisation|VRAM pair, so a 2-GPU system shows all
+  four GPU graphs on ONE row (a single GPU keeps its pair at half
+  width). Only GPUs actually reported by the collector are drawn
+  (empty boxes as placeholders until data arrives). Graphs are
+  btop-style FILLED braille time-series (newest sample in the
+  rightmost column, older samples pushed left, area under the curve
+  solid), rendered empty while disconnected. An OLLAMA information
+  row (current model + loaded/available counts, text only) follows
+  the graphs; the ollama section is never graphed, and network/disks
+  are no longer collected.
 - **Viewer hosting**: the collector serves the built web viewer
   (`src/viewer/dist`) at `/` and `/assets/*` on the same port and
   origin as the API — the browser loads the page from the collector

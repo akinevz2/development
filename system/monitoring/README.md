@@ -115,9 +115,10 @@ needed.
 The collector also streams snapshots over **WebSocket** at `ws://<host>:11367/ws`:
 single-client (first connection wins; others are closed with code 1013 until it
 disconnects), **localhost-only**, pushed on the metrics interval. Frontends
-render CPU + MEM side by side, GPU graph(s) below (only reported GPUs, up to
-3+), and an OLLAMA information row with the current model and loaded/available
-counts.
+render CPU + MEM side by side, then the GPU pairs packed two per row — each
+GPU a quarter-width utilisation | VRAM pair, so a 2-GPU system shows all four
+GPU graphs on one row — plus an OLLAMA information row with the current model
+and loaded/available counts.
 
 ### Windows Service Registration
 

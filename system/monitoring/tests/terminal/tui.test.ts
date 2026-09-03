@@ -37,13 +37,18 @@ const withUsage = (usage: Partial<Record<'cpu' | 'mem' | 'gpu0' | 'gpu1', number
 const source = new MockMetricsSource();
 
 describe('TUI rendering pipeline', () => {
-    it('places CPU and MEM side by side, with GPU0 and GPU1 side by side below', async () => {
+    it('places CPU and MEM side by side, both GPUs as four graphs on one row below', async () => {
         const out = renderToString(await source.getAllMetrics());
         const lines = out.split('\n');
         const cpuMemRow = lines.find((l) => l.includes('╭ CPU ') && l.includes('╭ MEM '));
-        const gpuRow = lines.find((l) => l.includes('╭ GPU0 ') && l.includes('╭ GPU1 '));
+        const gpuRow = lines.find((l) =>
+            l.includes('╭ GPU0 UTIL ') &&
+            l.includes('╭ GPU0 VRAM ') &&
+            l.includes('╭ GPU1 UTIL ') &&
+            l.includes('╭ GPU1 VRAM ')
+        );
         expect(cpuMemRow).toBeDefined(); // row 1: CPU | MEM
-        expect(gpuRow).toBeDefined(); // row 2: GPU0 | GPU1
+        expect(gpuRow).toBeDefined(); // row 2: all four GPU graphs on ONE line
         expect(lines.indexOf(cpuMemRow!)).toBeLessThan(lines.indexOf(gpuRow!)); // gpus below
         expect(out).toMatch(/OLLAMA  llama3:8b \(Q4_K_M\) · 1\/3 loaded/); // info row under the graphs
         for (const absent of ['NET', 'DISK']) {
@@ -76,19 +81,37 @@ describe('TUI rendering pipeline', () => {
         expect(zeros).toContain('⣀'); // baseline: bottom dot row lit across the bar
     });
 
-    it('draws aligned boxes: borders and graph rows share one width', () => {
-        const r = new MetricsGraphRenderer({ width: 30, height: 4 });
+    it('draws aligned boxes: every box borders and graph rows share one width', () => {
+        // width 80: half boxes get 40 cells, quarter boxes (2 GPUs) get 20
+        const r = new MetricsGraphRenderer({ width: 80, height: 4 });
         r.push(withUsage({ cpu: 50, mem: 50, gpu0: 50, gpu1: 50 }));
-        const lines = stripAnsi(r.renderFrame())
-            .split('\n')
-            .filter((l) => /^[╭│╰]/.test(l));
-        expect(lines.length).toBeGreaterThan(4);
-        expect(new Set(lines.map((l) => l.length)).size).toBe(1); // every box line equal width
+        const lines = stripAnsi(r.renderFrame()).split('\n');
+        // group lines into row blocks: each ╭ line through its ╰ line
+        const rows: string[][] = [];
+        let current: string[] | null = null;
+        for (const line of lines) {
+            if (line.startsWith('╭')) {
+                current = [line];
+            } else if (current) {
+                current.push(line);
+                if (line.startsWith('╰')) {
+                    rows.push(current);
+                    current = null;
+                }
+            }
+        }
+        expect(rows.length).toBe(2); // CPU|MEM row + the four-GPU row
+        // side-by-side boxes share lines, so every line in a row block
+        // must have the same length iff every box is internally aligned
+        expect(rows[0].every((l) => l.length === rows[0][0].length)).toBe(true); // 42+1+42
+        expect(rows[0][0].length).toBe(85);
+        expect(rows[1].every((l) => l.length === rows[1][0].length)).toBe(true); // 4x(20+2)+3
+        expect(rows[1][0].length).toBe(91);
     });
 
     it('sizes the framebuffer to fill the renderable area', () => {
         const { width, height } = geometryFor(80, 24);
-        expect(width).toBe(75);
+        expect(width).toBe(69); // room for four boxes + borders + gaps
         const frame = new MetricsGraphRenderer({ width, height }).renderFrame();
         const lines = frame.split('\n').filter((l) => l.length > 0);
         expect(lines.length).toBeLessThanOrEqual(24);
