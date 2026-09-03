@@ -23,14 +23,18 @@ export interface GraphGeometry {
 
 export const DEFAULT_GRAPH: GraphGeometry = { width: 50, height: 6 };
 
+/** Columns of left padding on every painted frame line; geometryFor
+ *  reserves this budget so padded lines never wrap. */
+export const FRAME_PAD = 1;
+
 /**
  * Framebuffer sizing: derives graph geometry from a renderable area
  * (cols x rows) so a frame fills it exactly. Assumes the standard
  * layout: 1 header line + `boxRows` box rows (each `height` graph rows
  * plus 2 border lines) separated by blank lines. `boxesPerRow` is the
  * widest row (default 4 = CPU|MEM plus a two-GPU row packing four
- * quarter-width graphs); the width leaves room for 2 border characters
- * per box plus 1 gap per extra box.
+ * quarter-width graphs); the width leaves room for the left frame pad
+ * (FRAME_PAD), 2 border characters per box plus 1 gap per extra box.
  */
 export function geometryFor(
     cols: number,
@@ -40,7 +44,7 @@ export function geometryFor(
 ): GraphGeometry {
     const usable = Math.max(6, rows - 2);
     const height = Math.max(2, Math.floor((usable - (boxRows - 1)) / boxRows) - 2);
-    const width = Math.max(20, cols - (2 * boxesPerRow + boxesPerRow - 1));
+    const width = Math.max(20, cols - FRAME_PAD - (2 * boxesPerRow + boxesPerRow - 1));
     return { width, height };
 }
 
@@ -86,8 +90,9 @@ function ollamaInfoLine(ollama: AllMetrics['ollama'] | undefined): string {
  */
 export function paintFrame(frame: string): string {
     const lines = (frame.endsWith('\n') ? frame.slice(0, -1) : frame).split('\n');
+    const pad = ' '.repeat(FRAME_PAD);
     let out = '\x1b[?2026h\x1b[H';
-    out += lines.map((l) => l + '\x1b[K').join('\r\n');
+    out += lines.map((l) => pad + l + '\x1b[K').join('\r\n');
     out += '\x1b[J\x1b[?2026l';
     return out;
 }
@@ -115,10 +120,10 @@ export class MetricsGraphRenderer {
     }
 
     private retrim(): void {
-        const half = this.halfWidth();
+        const pair = this.pairCells();
         const cells = this.cellsFor(this.gpuUtil.size >= 2 ? 2 : 0, false);
-        this.trimTo(this.cpu, half);
-        this.trimTo(this.mem, half);
+        this.trimTo(this.cpu, pair);
+        this.trimTo(this.mem, pair);
         for (const series of this.gpuUtil.values()) this.trimTo(series, cells);
         for (const series of this.gpuVram.values()) this.trimTo(series, cells);
     }
@@ -130,12 +135,12 @@ export class MetricsGraphRenderer {
     /** Appends one snapshot to every series (history capped to its box). */
     push(metrics: AllMetrics): void {
         this.timestamp = metrics.timestamp;
-        const half = this.halfWidth();
+        const pair = this.pairCells();
         const gpus = metrics.gpu?.gpuUsage ?? [];
         const cells = this.cellsFor(gpus.length, false);
 
-        this.pushTo(this.cpu, (metrics.cpu?.systemUsage ?? 0) / 100, half);
-        this.pushTo(this.mem, (metrics.memory?.allocationRatio ?? 0) / 100, half);
+        this.pushTo(this.cpu, (metrics.cpu?.systemUsage ?? 0) / 100, pair);
+        this.pushTo(this.mem, (metrics.memory?.allocationRatio ?? 0) / 100, pair);
         for (const g of gpus) {
             let util = this.gpuUtil.get(g.index);
             if (!util) {
@@ -163,10 +168,10 @@ export class MetricsGraphRenderer {
         const header = `SYSTEM MONITOR  ${this.timestamp === null ? '--' : new Date(this.timestamp).toISOString()}`;
         const lines = [header];
 
-        const half = this.halfWidth();
+        const pair = this.pairCells();
         lines.push(...this.rowOf([
-            this.boxLines('CPU', this.cpu, half),
-            this.boxLines('MEM', this.mem, half)
+            this.boxLines('CPU', this.cpu, pair),
+            this.boxLines('MEM', this.mem, pair)
         ]));
 
         const indices = [...this.gpuUtil.keys()].sort((a, b) => a - b);
@@ -186,8 +191,11 @@ export class MetricsGraphRenderer {
         return lines.map((l) => l + '\n').join('');
     }
 
-    private halfWidth(): number {
-        return Math.floor(this.width / 2);
+    /** Cells for a two-box row (CPU|MEM, single-GPU pairs) sized so the
+     *  row spans exactly the same width as a four-box row:
+     *  2·(2q+3)+5 = 4·q+11. */
+    private pairCells(): number {
+        return 2 * this.quarterWidth() + 3;
     }
 
     private quarterWidth(): number {
@@ -195,7 +203,7 @@ export class MetricsGraphRenderer {
     }
 
     private cellsFor(gpuCount: number, _forGPU: boolean): number {
-        return gpuCount >= 2 ? this.quarterWidth() : this.halfWidth();
+        return gpuCount >= 2 ? this.quarterWidth() : this.pairCells();
     }
 
     private pushTo(series: number[], value: number, cap: number): void {

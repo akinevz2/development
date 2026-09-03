@@ -10,6 +10,7 @@ system/monitoring/
 ├── tsconfig.json
 ├── scripts/
 │   ├── install-service.ps1       # Register collector as a per-user logon task (Task Scheduler)
+│   ├── reinstall-service.ps1     # npm run reinstall-service: verify + rebuild viewer + reinstall
 │   └── uninstall-service.ps1     # Stop + remove the task
 ├── src/
 │   ├── spec/
@@ -191,10 +192,13 @@ viewer, so both update together):
   (empty boxes as placeholders until data arrives). Graphs are
   btop-style FILLED braille time-series (newest sample in the
   rightmost column, older samples pushed left, area under the curve
-  solid), rendered empty while disconnected. An OLLAMA information
-  row (current model + loaded/available counts, text only) follows
-  the graphs; the ollama section is never graphed, and network/disks
-  are no longer collected.
+  solid), rendered empty while disconnected. Frames are indented one
+  column from the left edge (FRAME_PAD), and all rows span the same
+  width: each box on a 2-box row spans 2q+3 cells (q = the
+  quarter-width box), so the row spans 2·(2q+3)+5 = 4q+11 — exactly
+  the width of a 4-box row. An OLLAMA information row (current model
+  + loaded/available counts, text only) follows the graphs; the
+  ollama section is never graphed, and network/disks are no longer collected.
 - **Viewer hosting**: the collector serves the built web viewer
   (`src/viewer/dist`) at `/` and `/assets/*` on the same port and
   origin as the API — the browser loads the page from the collector

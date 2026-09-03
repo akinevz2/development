@@ -14,7 +14,6 @@ export function App({ source, pollMs = 2000 }: AppProps): JSX.Element {
     const containerRef = useRef<HTMLDivElement>(null);
     useMetricsTerminal(containerRef, metrics);
     const live = metrics !== null && Date.now() - metrics.timestamp < pollMs * 2;
-    const clock = new Date(metrics?.timestamp ?? Date.now()).toLocaleTimeString();
 
     return (
         <div className="desktop">
@@ -35,10 +34,6 @@ export function App({ source, pollMs = 2000 }: AppProps): JSX.Element {
                     <div className="status-bar-field">{live ? 'Receiving data' : 'No data'}</div>
                     <div className="status-bar-field">Graphs: cpu, mem, gpu · ollama info</div>
                 </div>
-            </div>
-            <div className="taskbar">
-                <div className="taskbar-item">System Monitor</div>
-                <div className="taskbar-clock">{clock}</div>
             </div>
         </div>
     );

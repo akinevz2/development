@@ -32,6 +32,7 @@ system/monitoring/
 ├── tsconfig.json
 ├── scripts/
 │   ├── install-service.ps1       # Register collector as a per-user logon task (Task Scheduler)
+│   ├── reinstall-service.ps1     # npm run reinstall-service: verify + rebuild viewer + reinstall
 │   └── uninstall-service.ps1     # Stop + remove the task
 ├── src/
 │   ├── spec/

@@ -62,20 +62,20 @@ describe('TUI rendering pipeline', () => {
         expect((stripAnsi(blockOf(r.renderFrame(), 'CPU')).match(/⣿/g) ?? []).length).toBe(0);
 
         for (let i = 0; i < 60; i++) r.push(withUsage({ cpu: 100 })); // sustained 100%
-        // CPU is a half-width box: 25 cells x 6 rows filled solid
-        expect((stripAnsi(blockOf(r.renderFrame(), 'CPU')).match(/⣿/g) ?? []).length).toBe(150);
+        // CPU is a two-box row: 27 cells x 6 rows filled solid
+        expect((stripAnsi(blockOf(r.renderFrame(), 'CPU')).match(/⣿/g) ?? []).length).toBe(162);
 
         r.push(withUsage({ cpu: 0 })); // one sample later it is pushed left
         const top = stripAnsi(blockOf(r.renderFrame(), 'CPU').split('\n')[1]);
         expect(top).toContain('⡇│ '); // CPU box: filled column drops to the new baseline
-        // the transition + rightmost cells are no longer fully filled (24 cells x 6 rows remain solid)
-        expect((stripAnsi(blockOf(r.renderFrame(), 'CPU')).match(/⣿/g) ?? []).length).toBe(144);
+        // the transition + rightmost cells are no longer fully filled (26 cells x 6 rows remain solid)
+        expect((stripAnsi(blockOf(r.renderFrame(), 'CPU')).match(/⣿/g) ?? []).length).toBe(156);
     });
 
     it('shows empty boxes before any data arrives', () => {
         const empty = new MetricsGraphRenderer().renderFrame();
         expect(empty).toContain('--'); // no timestamp yet
-        expect(empty).toContain('\u2800'.repeat(25)); // fully blank half-width graph row
+        expect(empty).toContain('\u2800'.repeat(27)); // fully blank two-box-row graph row
 
         const zeros = renderToString(createEmptyMetrics()); // a pushed all-zero snapshot
         expect(zeros).toContain('⣀'); // baseline: bottom dot row lit across the bar
@@ -103,15 +103,18 @@ describe('TUI rendering pipeline', () => {
         expect(rows.length).toBe(2); // CPU|MEM row + the four-GPU row
         // side-by-side boxes share lines, so every line in a row block
         // must have the same length iff every box is internally aligned
-        expect(rows[0].every((l) => l.length === rows[0][0].length)).toBe(true); // 42+1+42
-        expect(rows[0][0].length).toBe(85);
-        expect(rows[1].every((l) => l.length === rows[1][0].length)).toBe(true); // 4x(20+2)+3
+        expect(rows[0].every((l) => l.length === rows[0][0].length)).toBe(true);
+        expect(rows[1].every((l) => l.length === rows[1][0].length)).toBe(true);
+        // THE alignment invariant: the 2-box row and the 4-box row span
+        // the same width (pair cells = 2q+3 makes 2·(c+2)+1 = 4·(q+2)+3)
+        expect(rows[0][0].length).toBe(91);
         expect(rows[1][0].length).toBe(91);
+        expect(rows[0][0].length).toBe(rows[1][0].length);
     });
 
     it('sizes the framebuffer to fill the renderable area', () => {
         const { width, height } = geometryFor(80, 24);
-        expect(width).toBe(69); // room for four boxes + borders + gaps
+        expect(width).toBe(68); // 80 minus the left frame pad and 4-box row borders/gaps
         const frame = new MetricsGraphRenderer({ width, height }).renderFrame();
         const lines = frame.split('\n').filter((l) => l.length > 0);
         expect(lines.length).toBeLessThanOrEqual(24);
