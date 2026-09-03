@@ -35,3 +35,20 @@ internet/*
 # Extra temporary submodules
 system/*
 !system/drop.mjs
+!system/keybindings.json
+
+# OpenWebUI service definition is tracked; storage/artifacts are not
+!system/openwebui
+system/openwebui/*
+!system/openwebui/Dockerfile
+!system/openwebui/docker-compose.yml
+!system/openwebui/.dockerignore
+
+# System monitoring project tracked in its entirety; build artifacts are not
+!system/monitoring
+system/monitoring/node_modules/
+system/monitoring/dist/
+system/monitoring/bin/
+
+# Twitch scraper: local WIP, not ready to track
+twitch-category-scraper/

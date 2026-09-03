@@ -1,0 +1,11 @@
+services:
+  openwebui:
+    build: .
+    image: openwebui:v0.11.3
+    container_name: openwebui
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      OLLAMA_BASE_URLS: http://127.0.0.1:11434;http://ws-minifridge:11434
+    volumes:
+      - ./storage:/app/backend/data
