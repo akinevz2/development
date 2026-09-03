@@ -13,7 +13,8 @@
         "Vue.volar",
         "redhat.java",
         "ms-azuretools.vscode-containers",
-        "Ollama.ollama"
+        "Ollama.ollama",
+        "ltmoerdani.opencode-copilot-chat"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -61,11 +62,15 @@
     "EDITOR": "code --wait",
     "ALIASES": "~/.config/aliases",
     "dotfiles": "https://github.com/akinevz2/doftiles.git",
-    "OLLAMA_HOST": "host.docker.internal"
+    "OLLAMA_HOST": "localhost"
   },
   "remoteEnv": {
     "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent",
-    "OLLAMA_HOST": "host.docker.internal"
+    "OLLAMA_HOST": "localhost"
   },
-  "containerUser": "vscode"
+  "containerUser": "vscode",
+  "runArgs": [
+    "--network",
+    "host"
+  ]
 }
