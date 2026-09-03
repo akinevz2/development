@@ -18,7 +18,7 @@ Dual-component monitoring system for cross-platform resource tracking:
 
 - **Spec**: `src/spec/metrics.types.ts` — single source of truth for all metric shapes
 - **Collector**: Node.js (≥ 22.4) + TypeScript (API + WS transport implemented; Windows producer: implementation plan in AGENTS.md)
-- **Viewer (web)**: Vite + React (TSX, functional components + custom hooks) with an xterm.js pseudo-terminal
+- **Viewer (web)**: Vite + React (TSX, functional components + custom hooks) with an xterm.js pseudo-terminal, skinned with the vendored Windows XP theme (`src/viewer/src/vendor/xp/` — no npm dependency)
 - **Viewer (TUI)**: plain Node renderer sharing the same `renderFrame()` graphs
 - **Tests**: Vitest — `npm test`, `npm run typecheck`
 

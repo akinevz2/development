@@ -72,7 +72,7 @@ describe('TUI connection popup', () => {
         await sleep(500);
         const out = io.output();
         expect(out).toContain('connection failed');
-        expect(out).toMatch(/CPU\s+\[░{24}\]/); // empty graph fallback
+        expect(out).toMatch(/\u2800{20,}/); // empty graph fallback: blank braille rows
     });
 
     it('escape quits and releases the terminal', () => {
@@ -109,9 +109,10 @@ describe('TUI <-> collector end-to-end', () => {
         expect(io.output()).not.toContain('connection failed');
         expect(io.lastWrite()).not.toContain('COLLECTOR CONNECTION'); // popup hidden
         const frame = io.lastWrite();
-        for (const header of ['CPU', 'MEM', 'GPU0', 'GPU1']) {
+        for (const header of ['╭ CPU ', '╭ MEM ', '╭ GPU0 ', '╭ GPU1 ']) {
             expect(frame).toContain(header);
         }
+        expect(frame).toMatch(/[\u2801-\u28ff]/); // non-blank braille: time-series data drawn
         for (const absent of ['OLLAMA', 'NET', 'DISK']) {
             expect(frame).not.toContain(absent);
         }

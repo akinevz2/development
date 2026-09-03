@@ -1,31 +1,34 @@
-import { renderFrame, type FrameOptions } from './graphs.ts';
+import { MetricsGraphRenderer, paintFrame, type GraphGeometry } from './graphs.ts';
 import type { AllMetrics } from '../../spec/metrics.types.ts';
 
 export type TerminalWriter = (chunk: string) => void;
 
-export interface MetricsTUIOptions extends FrameOptions {
-    /** Emit ANSI clear-screen before each frame (disable for tests). */
+export interface MetricsTUIOptions {
+    /** Repaint in place (flicker-free, no scroll) instead of writing the
+     *  raw frame — enabled by default; tests pass false for raw output. */
     clearScreen?: boolean;
+    graph?: Partial<GraphGeometry>;
 }
 
 /**
  * Live TUI renderer for an actual terminal — the secondary rendering
- * pipeline. Writes the shared renderFrame() output to an injectable
- * writer so output is fully assertable in tests.
+ * pipeline. Each render() call appends the snapshot to the shared
+ * time-series history and paints the btop-style frame.
  */
 export class MetricsTUI {
-    private readonly barWidth: number;
+    private readonly renderer: MetricsGraphRenderer;
     private readonly clearScreen: boolean;
     private readonly write: TerminalWriter;
 
     constructor(write: TerminalWriter, options: MetricsTUIOptions = {}) {
         this.write = write;
-        this.barWidth = options.barWidth ?? 24;
+        this.renderer = new MetricsGraphRenderer(options.graph);
         this.clearScreen = options.clearScreen ?? true;
     }
 
     render(metrics: AllMetrics): void {
-        if (this.clearScreen) this.write('\x1b[2J\x1b[H');
-        this.write(renderFrame(metrics, { barWidth: this.barWidth }));
+        this.renderer.push(metrics);
+        const frame = this.renderer.renderFrame();
+        this.write(this.clearScreen ? paintFrame(frame) : frame);
     }
 }

@@ -1,17 +1,19 @@
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
-import { renderFrame } from './graphs.ts';
+import { MetricsGraphRenderer, geometryFor, paintFrame } from './graphs.ts';
 import type { AllMetrics } from '../../spec/metrics.types.ts';
 
 /**
  * Browser pseudo-terminal (xterm.js) — the primary rendering pipeline.
- * Writes the shared renderFrame() output, so the browser draws exactly
- * the same ASCII graphs as the TUI.
+ * Draws the shared btop-style braille graphs; the graph framebuffer is
+ * resized to fill the terminal grid whenever the container changes.
  */
 export class WebMetricsTerminal {
     private readonly term: Terminal;
     private readonly fitAddon: FitAddon;
+    private readonly renderer = new MetricsGraphRenderer();
+    private last: AllMetrics | null = null;
 
     constructor(container: HTMLElement) {
         this.term = new Terminal({
@@ -26,9 +28,23 @@ export class WebMetricsTerminal {
         this.fitAddon.fit();
     }
 
-    render(metrics: AllMetrics): void {
-        this.term.write('\x1b[2J\x1b[H');
-        this.term.write(renderFrame(metrics));
+    /** Re-fits the terminal to its container, resizes the graph
+     *  framebuffer to fill the new grid, and redraws the last frame. */
+    resizeToFit(): void {
+        this.fitAddon.fit();
+        this.renderer.resize(geometryFor(this.term.cols, this.term.rows));
+        this.render(this.last);
+    }
+
+    render(metrics: AllMetrics | null): void {
+        this.last = metrics;
+        if (metrics) {
+            this.renderer.push(metrics);
+        } else {
+            this.renderer.clear();
+        }
+        // single write, in-place repaint: no flicker, no scrollback growth
+        this.term.write(paintFrame(this.renderer.renderFrame()));
     }
 
     fit(): void {

@@ -33,7 +33,9 @@ system/monitoring/
 │           ├── graphs.ts         # Shared renderFrame — ONE source of ASCII graphs
 │           ├── terminal-web.ts   # xterm.js pseudo-terminal (browser pipeline)
 │           ├── api-source.ts     # API-backed MetricsSource (HTTP polling)
-│           ├── App.tsx            # Stateless root component
+│           ├── App.tsx            # Stateless root component (XP-chrome layout)
+│           ├── styles.css         # Desktop/taskbar/terminal-field styles complementing the theme
+│           ├── vendor/xp/         # Vendored XP.css theme + fonts + MIT license
 │           ├── main.tsx           # React entry (Vite)
 │           ├── hooks/             # useMetricsSource, useMetricsTerminal (custom hooks)
 │           └── types.ts           # Re-exports the canonical spec
@@ -187,12 +189,23 @@ web viewer, so both update together):
   localhost (127.0.0.1 / ::1) — enforced before the WebSocket handshake
   in `MetricsWebSocketServer`. The Windows service must bind to 127.0.0.1
   and must never expose the port beyond the host (Windows Firewall).
-- **Graph restriction**: up to FIVE graphs — CPU (row 1), MEM (row 2),
-  then GPU0 + GPU1 + GPU2 side by side on ONE shared row (only GPUs
-  actually reported by the collector, capped at 3; all five render as
-  empty placeholders while disconnected). The collector/API may still
-  serve the full specification — ollama, network and disks are data-level
-  only and intentionally not graphed.
+- **Graph restriction & layout**: row 1 = CPU and MEM side by side
+  (half width each); GPU graph(s) below — full width with one GPU, side
+  by side with two, otherwise stacked full width one on top of the
+  other. Only GPUs actually reported by the collector are drawn (empty
+  boxes as placeholders until data arrives). Graphs are btop-style
+  FILLED braille time-series (newest sample in the rightmost column,
+  older samples pushed left, area under the curve solid), rendered
+  empty while disconnected. The collector/API may still serve the full
+  specification — ollama, network and disks are data-level only and
+  intentionally not graphed.
+- **Theming**: the web viewer is skinned with the Windows XP theme. The
+  `xp.css` npm package (0.2.6) is outdated and its build system carries
+  vulnerabilities, so the prebuilt `dist/XP.css` + font files are
+  VENDORED at `src/viewer/src/vendor/xp/` (taken from the local copy in
+  `personal/website/node_modules/xp.css`). Do NOT add `xp.css` as an npm
+  dependency; update the vendored files by re-copying from a trusted
+  built copy instead.
 - **TUI behaviour**: on start (and on every disconnect) the TUI shows
   empty graphs plus a centered connection popup prefilled with
   `localhost:11367`; Enter connects via WebSocket, typing edits the

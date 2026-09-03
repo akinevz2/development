@@ -1,0 +1,71 @@
+/*
+ * XP-themed layout for the monitor frontend, complementing the vendored
+ * xp.css (Windows XP theme). Core chrome classes (.window, .title-bar,
+ * .status-bar, buttons, fields) come from vendor/xp/XP.css.
+ */
+
+.desktop {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #3a6ea5; /* classic XP desktop blue */
+    box-sizing: border-box;
+}
+
+.monitor-window {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    width: 100%;
+}
+
+.monitor-window .window-body {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    margin: 0;
+}
+
+/* Sunken field housing the terminal, matching XP input styling. */
+.terminal-field {
+    flex: 1;
+    min-height: 0;
+    background: #000000;
+    box-shadow: inset -1px -1px #ffffff, inset 1px 1px #808080,
+        inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+    padding: 2px;
+}
+
+.terminal-field .xterm {
+    height: 100%;
+}
+
+/* Luna-blue taskbar with clock, purely thematic. */
+.taskbar {
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+    background: linear-gradient(180deg, #245edb 0%, #3f8cf3 9%, #245edb 18%, #1941a5 92%, #18398a 100%);
+}
+
+.taskbar-item {
+    color: #ffffff;
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid #1941a5;
+    box-shadow: inset 1px 1px #4e8ef7, inset -1px -1px #1941a5;
+}
+
+.taskbar-clock {
+    margin-left: auto;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 3px 12px;
+    background: linear-gradient(180deg, #0c8fda, #12b1f5);
+    box-shadow: inset -1px -1px #0a486c, inset 1px 1px #3ed1ff;
+}

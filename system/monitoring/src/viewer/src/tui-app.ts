@@ -1,5 +1,5 @@
-import { MetricsTUI } from './terminal.ts';
-import { createEmptyMetrics, type AllMetrics } from '../../spec/metrics.types.ts';
+import { MetricsGraphRenderer, geometryFor, paintFrame } from './graphs.ts';
+import type { AllMetrics } from '../../spec/metrics.types.ts';
 
 /** Destination prefill for the connection popup. */
 export const DEFAULT_DESTINATION = 'localhost:11367';
@@ -78,37 +78,44 @@ export function buildPopup(destination: string, status: string, cols: number, ro
 /**
  * Interactive TUI: opens a centered popup (prefilled with the collector
  * destination) to connect over WebSocket. While disconnected it renders
- * EMPTY graphs; on successful connection it renders live frames, and on
- * disconnect it falls back to empty graphs + popup again.
+ * EMPTY graphs; every received snapshot is pushed to the shared
+ * time-series renderer; on disconnect it falls back to empty graphs
+ * plus popup again.
  */
 export class ConnectTUI {
     private readonly io: TUIIO;
-    private readonly frame: MetricsTUI;
+    private readonly renderer: MetricsGraphRenderer;
     private destination: string;
     private status = '';
     private popupOpen = true;
-    private lastMetrics: AllMetrics | null = null;
     private ws: WebSocket | null = null;
     private stopped = false;
 
     constructor(io: TUIIO, defaultDestination: string = DEFAULT_DESTINATION) {
         this.io = io;
         this.destination = defaultDestination;
-        this.frame = new MetricsTUI((chunk) => this.io.write(chunk), { clearScreen: true });
+        // size the framebuffer so the frame fills the terminal
+        const { cols, rows } = io.getSize();
+        this.renderer = new MetricsGraphRenderer(geometryFor(cols, rows));
     }
 
     start(): void {
         this.io.setRaw?.(true);
+        // alternate screen buffer: TUI never touches the scrollback and
+        // the shell is restored on exit; hide the cursor while running
+        this.io.write('\x1b[?1049h\x1b[H\x1b[?25l');
         this.io.onKey((key) => this.handleKey(key));
         this.draw();
     }
 
     private draw(): void {
-        this.frame.render(this.lastMetrics ?? createEmptyMetrics());
+        // single write: flicker-free in-place repaint (no clear, no scroll)
+        let out = paintFrame(this.renderer.renderFrame());
         if (this.popupOpen) {
             const { cols, rows } = this.io.getSize();
-            this.io.write(buildPopup(this.destination, this.status, cols, rows));
+            out += buildPopup(this.destination, this.status, cols, rows);
         }
+        this.io.write(out);
     }
 
     private handleKey(key: KeyEvent): void {
@@ -150,17 +157,19 @@ export class ConnectTUI {
             this.draw();
         };
         ws.onmessage = (event) => {
+            let metrics: AllMetrics;
             try {
-                this.lastMetrics = JSON.parse(String(event.data)) as AllMetrics;
+                metrics = JSON.parse(String(event.data)) as AllMetrics;
             } catch {
                 return; // ignore malformed frames
             }
-            if (!this.popupOpen) this.draw();
+            this.renderer.push(metrics);
+            this.draw();
         };
         ws.onclose = () => {
             this.ws = null;
             if (this.stopped) return;
-            this.lastMetrics = null; // disconnected -> empty graphs
+            this.renderer.clear(); // disconnected -> empty graphs
             this.popupOpen = true;
             this.status = 'connection failed - check destination';
             this.draw();
@@ -174,6 +183,8 @@ export class ConnectTUI {
             this.ws.close();
             this.ws = null;
         }
+        // restore the terminal: cursor back, leave the alternate screen
+        this.io.write('\x1b[?25h\x1b[?1049l');
         this.io.setRaw?.(false);
         this.io.close?.();
     }
