@@ -5,14 +5,18 @@
 
 .DESCRIPTION
     Creates a scheduled task named 'SystemMonitorCollector' that starts
-    the collector (node src/collector/src/index.ts) hidden, in the
-    monitoring root, every time the current user logs on. The task:
+    the collector (node src/collector/src/index.ts) every time the
+    current user logs on — via a windowless wscript launcher, so nothing
+    ever flashes on the desktop. The task:
       - runs regardless of elevation (port 11367 needs none),
       - is single-instance (Task Scheduler 'IgnoreNew'),
       - restarts up to 3 times, 1 minute apart, if node exits with a
         failure,
       - has no execution time limit,
-      - appends collector stdout/stderr to a log file.
+      - completes immediately: the launcher detaches and the collector
+        keeps running in the background (the task state shows 'Ready');
+        stdout/stderr are appended to
+        %LOCALAPPDATA%\system-monitoring\collector.log by the launcher.
 
     The collector binds to 127.0.0.1 only, so the task is safe in a user
     session (AGENTS.md transport policy). Being a logon task, the
@@ -27,7 +31,6 @@
 param(
     [string]$TaskName = 'SystemMonitorCollector',
     [string]$NodePath = '',
-    [string]$LogPath = '',
     [switch]$StartNow
 )
 
@@ -51,19 +54,15 @@ if ([version]$version -lt [version]'22.4.0') {
     throw "Node >= 22.4 required for native type stripping (found v$version at $NodePath)"
 }
 
-if (-not $LogPath) {
-    $LogPath = Join-Path $env:LOCALAPPDATA 'system-monitoring\collector.log'
+# wscript is windowless and the launcher hides the cmd/node consoles, so
+# the task never flashes a console window on the desktop (a powershell
+# wrapper would flash briefly before -WindowStyle Hidden takes effect)
+$launcher = Join-Path $PSScriptRoot 'collector-launcher.vbs'
+if (-not (Test-Path -LiteralPath $launcher)) {
+    throw "launcher script not found: $launcher"
 }
-$logDir = Split-Path -Parent $LogPath
-if (-not (Test-Path -LiteralPath $logDir)) {
-    New-Item -ItemType Directory -Path $logDir | Out-Null
-}
-
-# node runs as a child of a hidden powershell console so no window
-# flashes at logon; output is appended to the log file
-$inner = "& '$NodePath' 'src\collector\src\index.ts' 2>&1 | Out-File -Append -Encoding utf8 -LiteralPath '$LogPath'"
-$action = New-ScheduledTaskAction -Execute 'powershell.exe' `
-    -Argument "-NoProfile -NonInteractive -WindowStyle Hidden -Command `"$inner`"" `
+$action = New-ScheduledTaskAction -Execute 'wscript.exe' `
+    -Argument "//B //NoLogo `"$launcher`" `"$NodePath`"" `
     -WorkingDirectory $monitorRoot
 
 $user = "$env:USERDOMAIN\$env:USERNAME"
@@ -83,9 +82,9 @@ Register-ScheduledTask -TaskName $TaskName `
     -Action $action -Trigger $trigger -Settings $settings `
     -Description $description | Out-Null
 
-Write-Host "task '$TaskName' registered: starts at logon for $user (hidden)"
-Write-Host "log file: $LogPath"
+Write-Host "task '$TaskName' registered: starts at logon for $user (windowless)"
+Write-Host "log file: $env:LOCALAPPDATA\system-monitoring\collector.log"
 if ($StartNow) {
     Start-ScheduledTask -TaskName $TaskName
-    Write-Host 'collector started'
+    Write-Host 'collector started (task detaches; state will show Ready while the collector runs)'
 }
