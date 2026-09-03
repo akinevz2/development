@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/spec/**/*.ts",
+    "src/collector/**/*.ts",
+    "src/viewer/src/terminal.ts",
+    "src/viewer/src/index.ts",
+    "src/viewer/src/graphs.ts",
+    "src/viewer/src/types.ts",
+    "tests/**/*.ts"
+  ]
+}
