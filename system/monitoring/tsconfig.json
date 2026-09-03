@@ -16,6 +16,7 @@
     "src/viewer/src/terminal.ts",
     "src/viewer/src/index.ts",
     "src/viewer/src/graphs.ts",
+    "src/viewer/src/tui-app.ts",
     "src/viewer/src/types.ts",
     "tests/**/*.ts"
   ]

@@ -125,3 +125,39 @@ export interface MetricsSource {
     getDiskMetrics(): Promise<DiskMetrics>;
     getAllMetrics(): Promise<AllMetrics>;
 }
+
+/**
+ * Zero-value snapshot: every section present, every usage at 0.
+ * Rendered as "empty graphs" by the frontends while disconnected.
+ */
+export function createEmptyMetrics(): AllMetrics {
+    return {
+        timestamp: 0,
+        cpu: {
+            timestamp: 0,
+            systemUsage: 0,
+            userUsage: 0,
+            idleUsage: 100,
+            totalUsage: 100,
+            threadCount: 0,
+            coreCount: 0
+        },
+        memory: {
+            timestamp: 0,
+            total: 0,
+            used: 0,
+            available: 0,
+            free: 0,
+            swapTotal: 0,
+            swapUsed: 0,
+            cached: 0,
+            buffers: 0,
+            allocationRatio: 0,
+            swapAllocationRatio: 0
+        },
+        gpu: { timestamp: 0, totalGPUs: 0, gpuUsage: [] },
+        ollama: { timestamp: 0, isRunning: false, loadedModels: [], availableModels: [] },
+        network: { timestamp: 0, interfaces: {} },
+        disks: { timestamp: 0, disks: [] }
+    };
+}

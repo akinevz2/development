@@ -19,6 +19,9 @@ export interface APIServerConfig {
     metricsUpdateInterval?: number;
 }
 
+/** Default collector port; the TUI connection popup prefills it. */
+export const DEFAULT_PORT = 11367;
+
 const EMPTY: AllMetrics = {
     timestamp: 0,
     cpu: {} as CPUMetrics,
@@ -41,7 +44,7 @@ export class APIServer {
 
     constructor(source: MetricsSource, config: APIServerConfig = {}) {
         this.source = source;
-        this.port = config.port ?? 3000;
+        this.port = config.port ?? DEFAULT_PORT;
         this.host = config.host ?? '0.0.0.0';
         this.enableCors = config.enableCors ?? true;
         this.updateInterval = config.metricsUpdateInterval ?? 5000;
@@ -149,6 +152,11 @@ export class APIServer {
         if (!this.server) return null;
         const addr = this.server.address();
         return typeof addr === 'object' && addr !== null ? addr.port : Number(addr);
+    }
+
+    /** Underlying HTTP server (e.g. to attach the WebSocket transport). */
+    getServer(): http.Server | null {
+        return this.server;
     }
 
     getMetrics(): AllMetrics {

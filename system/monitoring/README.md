@@ -53,8 +53,10 @@ system/monitoring/
 │           ├── hooks/             # useMetricsSource, useMetricsTerminal (custom hooks)
 │           └── types.ts           # Re-exports the canonical spec
 └── tests/
-    ├── spec/data-spec.test.ts    # Specification structure + invariants + API contract
-    └── terminal/tui.test.ts      # TUI rendering cohesiveness
+    ├── spec/data-spec.test.ts      # Specification structure + invariants + API contract
+    ├── collector/ws-server.test.ts # WS transport: single-client + localhost policies
+    ├── terminal/tui.test.ts        # Restricted graph set + empty-state rendering
+    └── terminal/tui-connect.test.ts # Connection popup, editing, live end-to-end
 ```
 
 ## Collector Development
@@ -103,6 +105,11 @@ GET  /api/network         # Network metrics
 ```
 
 Response format: JSON with timestamped data for historical queries.
+
+The collector also streams snapshots over **WebSocket** at `ws://<host>:11367/ws`:
+single-client (first connection wins; others are closed with code 1013 until it
+disconnects), **localhost-only**, pushed on the metrics interval. Frontends graph
+ONLY cpu, mem, gpu0 and gpu1.
 
 ### Windows Service Registration
 

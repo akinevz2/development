@@ -12,7 +12,9 @@ system/monitoring/
 │   ├── spec/
 │   │   └── metrics.types.ts      # Canonical metrics specification — SINGLE SOURCE OF TRUTH
 │   ├── collector/src/
+│   │   ├── index.ts              # Service entrypoint: REST + WS on port 11367
 │   │   ├── api.ts                # REST + SSE server over a MetricsSource
+│   │   ├── ws.ts                 # WebSocket transport (single-client, localhost-only)
 │   │   └── mock-source.ts        # Mock producer; real Windows collector is deferred
 │   └── viewer/
 │       ├── package.json           # Vite + React + xterm.js (web build)
@@ -20,35 +22,63 @@ system/monitoring/
 │       ├── tsconfig.json
 │       ├── index.html
 │       └── src/
-│           ├── index.ts           # TUI entrypoint (npm run tui)
-│           ├── terminal.ts        # MetricsTUI renderer (injectable writer, testable)
-│           ├── graphs.ts          # Shared renderFrame — ONE source of ASCII graphs
-│           ├── terminal-web.ts    # xterm.js pseudo-terminal (browser pipeline)
-│           ├── api-source.ts      # API-backed MetricsSource (switch in when collector lands)
+│           ├── index.ts          # TUI entrypoint (npm run tui)
+│           ├── tui-app.ts        # ConnectTUI: connection popup + WS client + key handling
+│           ├── terminal.ts       # MetricsTUI renderer (injectable writer, testable)
+│           ├── graphs.ts         # Shared renderFrame — ONE source of ASCII graphs
+│           ├── terminal-web.ts   # xterm.js pseudo-terminal (browser pipeline)
+│           ├── api-source.ts     # API-backed MetricsSource (HTTP polling)
 │           ├── App.tsx            # Stateless root component
 │           ├── main.tsx           # React entry (Vite)
 │           ├── hooks/             # useMetricsSource, useMetricsTerminal (custom hooks)
 │           └── types.ts           # Re-exports the canonical spec
 └── tests/
-    ├── spec/data-spec.test.ts
-    └── terminal/tui.test.ts
+    ├── spec/data-spec.test.ts      # Specification structure + invariants + API contract
+    ├── collector/ws-server.test.ts # WS transport: single-client + localhost policies
+    ├── terminal/tui.test.ts        # Restricted graph set + empty-state rendering
+    └── terminal/tui-connect.test.ts # Connection popup, editing, live end-to-end
 ```
 
 ## STATUS — Deferred: Windows resource collection
 
 Metric **collection is not implemented yet**. Everything downstream of the
-`MetricsSource` contract is done and tested: the API server, the mock
-producer, the TUI, and the web viewer. To resume work on the Windows
-partition:
+`MetricsSource` contract is done and tested: the API server, the WebSocket
+transport, the mock producer, the TUI, and the web viewer. To resume work
+on the Windows partition:
 
 1. Implement a `WindowsMetricsCollector` satisfying the `MetricsSource`
    contract from `src/spec/metrics.types.ts` — system-scope CPU, memory,
    GPU (gpu0/gpu1), Ollama loaded/available models, network, and disks.
    System-scope collection covers total utilisation including the WSL VM.
-2. Wire it into `APIServer` as the producer (replacing `MockMetricsSource`).
+2. Wire it into `src/collector/src/index.ts` (replacing `MockMetricsSource`)
+   — the REST API and WebSocket transport attach to whatever producer is
+   configured there.
 3. Everything runs through Node on either side of the partition:
-   `npm install`, `npm test`, `npm run typecheck` at the repo root, and
-   `npm run tui` for a live terminal demo against the mock source.
+   `npm install`, `npm test`, `npm run typecheck` at the repo root,
+   `npm run collector` for the service, `npm run tui` for the terminal
+   frontend (`npm run dev` in `src/viewer` for the web frontend).
+
+## Transport & Connection Policy (implemented and tested)
+
+- **Transport**: WebSocket. The collector streams `AllMetrics` JSON
+  snapshots to `ws://<host>:11367/ws` — same port as the REST API
+  (`DEFAULT_PORT = 11367`), pushed every metrics interval.
+- **Single-client policy**: the collector listens for ONLY the first
+  connection on the port; further connections are closed with code 1013
+  while one is active, and listening resumes automatically once that
+  client disconnects. Implemented in `MetricsWebSocketServer`.
+- **Localhost-only**: the collector accepts connections ONLY from
+  localhost (127.0.0.1 / ::1) — enforced before the WebSocket handshake
+  in `MetricsWebSocketServer`. The Windows service must bind to 127.0.0.1
+  and must never expose the port beyond the host (Windows Firewall).
+- **Graph restriction**: the TUI and the web viewer graph ONLY cpu, mem,
+  gpu0 and gpu1 (fixed four-graph layout, empty bars while disconnected).
+  The collector/API may still serve the full specification — ollama,
+  network and disks are data-level only and intentionally not graphed.
+- **TUI behaviour**: on start (and on every disconnect) the TUI shows
+  empty graphs plus a centered connection popup prefilled with
+  `localhost:11367`; Enter connects via WebSocket, typing edits the
+  destination, Esc quits.
 
 ## Specification Rules
 
