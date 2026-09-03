@@ -17,7 +17,7 @@ Dual-component monitoring system for cross-platform resource tracking:
 ## Technology Stack
 
 - **Spec**: `src/spec/metrics.types.ts` — single source of truth for all metric shapes
-- **Collector**: Node.js + TypeScript (API server implemented; collection deferred — see AGENTS.md)
+- **Collector**: Node.js (≥ 22.4) + TypeScript (API + WS transport implemented; Windows producer: implementation plan in AGENTS.md)
 - **Viewer (web)**: Vite + React (TSX, functional components + custom hooks) with an xterm.js pseudo-terminal
 - **Viewer (TUI)**: plain Node renderer sharing the same `renderFrame()` graphs
 - **Tests**: Vitest — `npm test`, `npm run typecheck`
@@ -33,10 +33,13 @@ system/monitoring/
 ├── src/
 │   ├── spec/
 │   │   └── metrics.types.ts      # Canonical metrics specification (single source of truth)
-│   ├── collector/                # Windows-side collector (API implemented; collection deferred)
+│   ├── collector/                # Windows-side collector (API + WS done; producer: see AGENTS.md)
 │   │   └── src/
-│   │       ├── api.ts            # REST + SSE server over any MetricsSource
-│   │       └── mock-source.ts    # Deterministic mock producer (until Windows collector lands)
+│   │       ├── index.ts            # Entrypoint: REST + WS on port 11367
+│   │       ├── api.ts              # REST + SSE server over any MetricsSource
+│   │       ├── ws.ts               # WebSocket transport (single-client, localhost-only)
+│   │       ├── mock-source.ts      # Deterministic mock producer (non-Windows fallback)
+│   │       └── windows/            # TO IMPLEMENT — plan in AGENTS.md
 │   └── viewer/
 │       ├── package.json           # Vite + React + xterm.js (web build)
 │       ├── vite.config.ts
@@ -55,7 +58,8 @@ system/monitoring/
 └── tests/
     ├── spec/data-spec.test.ts      # Specification structure + invariants + API contract
     ├── collector/ws-server.test.ts # WS transport: single-client + localhost policies
-    ├── terminal/tui.test.ts        # Restricted graph set + empty-state rendering
+    ├── collector/windows-collector.test.ts # TO IMPLEMENT — fixture-driven probe/parsing tests
+    ├── terminal/tui.test.ts        # Five-graph layout (CPU, MEM, GPU0–GPU2 row) + empty-state
     └── terminal/tui-connect.test.ts # Connection popup, editing, live end-to-end
 ```
 
@@ -78,7 +82,7 @@ system/monitoring/
 
 3. **GPU & Ollama**
    - Which models are loaded
-   - GPU memory usage per model
+   - Per-GPU utilization and VRAM usage (variable GPU count, 1..N — NVIDIA via nvidia-smi; AMD not supported)
    - Total GPU utilization
    - Process-specific memory allocation
 
@@ -108,8 +112,8 @@ Response format: JSON with timestamped data for historical queries.
 
 The collector also streams snapshots over **WebSocket** at `ws://<host>:11367/ws`:
 single-client (first connection wins; others are closed with code 1013 until it
-disconnects), **localhost-only**, pushed on the metrics interval. Frontends graph
-ONLY cpu, mem, gpu0 and gpu1.
+disconnects), **localhost-only**, pushed on the metrics interval. Frontends
+render up to FIVE graphs: CPU, MEM, then GPU0–GPU2 side by side on one row.
 
 ### Windows Service Registration
 
