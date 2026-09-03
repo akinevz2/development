@@ -130,6 +130,15 @@ describe('TUI rendering pipeline', () => {
         expect((painted.match(/\r\n/g) ?? []).length).toBe(1); // no trailing newline -> no scroll
     });
 
+    it('skips erase-to-EOL on full-width lines (deferred-wrap cell)', () => {
+        const full = paintFrame('abc\ndef\n', 4); // pad + 3 == 4 == cols
+        expect(full).not.toContain('\x1b[K'); // EL would eat the right border
+        expect(full.endsWith('\x1b[J\x1b[?2026l')).toBe(true);
+        const mixed = paintFrame('abc\nx\n', 4);
+        expect(mixed).not.toContain('abc\x1b[K');
+        expect(mixed).toContain(' x\x1b[K'); // short lines still erase stale cells
+    });
+
     it('renders the identical frame as the web pseudo-terminal (shared pipeline)', async () => {
         const metrics = await source.getAllMetrics();
         const r = new MetricsGraphRenderer();

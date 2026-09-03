@@ -196,9 +196,12 @@ viewer, so both update together):
   column from the left edge (FRAME_PAD), and all rows span the same
   width: each box on a 2-box row spans 2q+3 cells (q = the
   quarter-width box), so the row spans 2·(2q+3)+5 = 4q+11 — exactly
-  the width of a 4-box row. An OLLAMA information row (current model
-  + loaded/available counts, text only) follows the graphs; the
-  ollama section is never graphed, and network/disks are no longer collected.
+  the width of a 4-box row. Full-width frame lines are painted without
+  erase-to-EOL: in the deferred-wrap state a terminal erases the cell
+  the cursor is on, which would eat the row's right border. An OLLAMA
+  information row (current model + loaded/available counts, text only)
+  follows the graphs; the ollama section is never graphed, and
+  network/disks are no longer collected.
 - **Viewer hosting**: the collector serves the built web viewer
   (`src/viewer/dist`) at `/` and `/assets/*` on the same port and
   origin as the API — the browser loads the page from the collector

@@ -110,7 +110,8 @@ export class ConnectTUI {
 
     private draw(): void {
         // single write: flicker-free in-place repaint (no clear, no scroll)
-        let out = paintFrame(this.renderer.renderFrame());
+        const { cols } = this.io.getSize();
+        let out = paintFrame(this.renderer.renderFrame(), cols);
         if (this.popupOpen) {
             const { cols, rows } = this.io.getSize();
             out += buildPopup(this.destination, this.status, cols, rows);

@@ -82,17 +82,24 @@ function ollamaInfoLine(ollama: AllMetrics['ollama'] | undefined): string {
  *  - wrapped in synchronized-output markers (DEC 2026) so supporting
  *    terminals swap the frame atomically — no flashing; ignored elsewhere
  *  - homes the cursor and repaints each line in place, erasing to end
- *    of line (`\x1b[K`) instead of clearing the screen
+ *    of line (`\x1b[K`) instead of clearing the screen; a line that
+ *    already fills the terminal is painted WITHOUT the erase: writing
+ *    its last cell leaves the cursor in the deferred-wrap state, where
+ *    EL erases that cell (the right border) instead of nothing
  *  - never writes a trailing newline, so the terminal never scrolls and
  *    the scrollback buffer stays fixed; `\x1b[J` clears leftovers below
  *
  * The entire sequence must be written in a single write() call.
  */
-export function paintFrame(frame: string): string {
+export function paintFrame(frame: string, cols?: number): string {
     const lines = (frame.endsWith('\n') ? frame.slice(0, -1) : frame).split('\n');
     const pad = ' '.repeat(FRAME_PAD);
     let out = '\x1b[?2026h\x1b[H';
-    out += lines.map((l) => pad + l + '\x1b[K').join('\r\n');
+    out += lines.map((l) => {
+        const text = pad + l;
+        const erase = cols !== undefined && text.length >= cols ? '' : '\x1b[K';
+        return text + erase;
+    }).join('\r\n');
     out += '\x1b[J\x1b[?2026l';
     return out;
 }

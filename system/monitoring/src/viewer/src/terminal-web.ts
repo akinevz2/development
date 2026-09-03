@@ -44,7 +44,7 @@ export class WebMetricsTerminal {
             this.renderer.clear();
         }
         // single write, in-place repaint: no flicker, no scrollback growth
-        this.term.write(paintFrame(this.renderer.renderFrame()));
+        this.term.write(paintFrame(this.renderer.renderFrame(), this.term.cols));
     }
 
     fit(): void {
