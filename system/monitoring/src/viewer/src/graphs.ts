@@ -116,12 +116,11 @@ export class MetricsGraphRenderer {
 
     private retrim(): void {
         const half = this.halfWidth();
-        // with two or more GPUs the boxes are quarter-width (4 per row)
-        const gpuCap = this.gpuUtil.size >= 2 ? this.quarterWidth() : half;
+        const cells = this.cellsFor(this.gpuUtil.size >= 2 ? 2 : 0, false);
         this.trimTo(this.cpu, half);
         this.trimTo(this.mem, half);
-        for (const series of this.gpuUtil.values()) this.trimTo(series, gpuCap);
-        for (const series of this.gpuVram.values()) this.trimTo(series, gpuCap);
+        for (const series of this.gpuUtil.values()) this.trimTo(series, cells);
+        for (const series of this.gpuVram.values()) this.trimTo(series, cells);
     }
 
     private trimTo(series: number[], cap: number): void {
@@ -133,8 +132,7 @@ export class MetricsGraphRenderer {
         this.timestamp = metrics.timestamp;
         const half = this.halfWidth();
         const gpus = metrics.gpu?.gpuUsage ?? [];
-        // two or more GPUs pack four quarter-width boxes onto one row
-        const gpuCap = gpus.length >= 2 ? this.quarterWidth() : half;
+        const cells = this.cellsFor(gpus.length, false);
 
         this.pushTo(this.cpu, (metrics.cpu?.systemUsage ?? 0) / 100, half);
         this.pushTo(this.mem, (metrics.memory?.allocationRatio ?? 0) / 100, half);
@@ -145,8 +143,8 @@ export class MetricsGraphRenderer {
                 this.gpuUtil.set(g.index, util);
                 this.gpuVram.set(g.index, []);
             }
-            this.pushTo(util, clamp01(g.utilization / 100), gpuCap);
-            this.pushTo(this.gpuVram.get(g.index)!, clamp01((g.memoryUtilization ?? 0) / 100), gpuCap);
+            this.pushTo(util, clamp01(g.utilization / 100), cells);
+            this.pushTo(this.gpuVram.get(g.index)!, clamp01((g.memoryUtilization ?? 0) / 100), cells);
         }
         this.ollama = ollamaInfoLine(metrics.ollama);
     }
@@ -172,10 +170,7 @@ export class MetricsGraphRenderer {
         ]));
 
         const indices = [...this.gpuUtil.keys()].sort((a, b) => a - b);
-        // 2+ GPUs: two GPUs per row — four quarter-width graphs on one
-        // line (utilisation | VRAM per GPU); a single GPU keeps its
-        // pair at half width
-        const cells = indices.length >= 2 ? this.quarterWidth() : half;
+        const cells = this.cellsFor(indices.length, false);
         for (let i = 0; i < indices.length; i += 2) {
             const chunk = indices.slice(i, i + 2);
             const boxes = chunk.flatMap((idx) => [
@@ -197,6 +192,10 @@ export class MetricsGraphRenderer {
 
     private quarterWidth(): number {
         return Math.floor(this.width / 4);
+    }
+
+    private cellsFor(gpuCount: number, _forGPU: boolean): number {
+        return gpuCount >= 2 ? this.quarterWidth() : this.halfWidth();
     }
 
     private pushTo(series: number[], value: number, cap: number): void {
