@@ -2,9 +2,16 @@
   "$schema": "https://opencode.ai/config.json",
   "model": "opencode-go/glm-5.3-flash",
   "provider": {
-    "ollama_wsrarebox": {
+    "ollama_local": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama - WS-RAREBOX (24GB VRAM)",
+      "name": "Ollama - LOCAL",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      }
+    },
+    "ollama_rarebox": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama - RAREBOX (24GB VRAM)",
       "options": {
         "baseURL": "http://ws-rarebox:11434/v1"
       },
@@ -41,32 +48,9 @@
         }
       }
     },
-    "ollama_v9mini": {
+    "ollama_minifridge": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama - V9-MINI (16GB VRAM)",
-      "options": {
-        "baseURL": "http://v9-mini:11434/v1"
-      },
-      "models": {}
-    },
-    "ollama_wsvision": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama - WS-VISION (8GB VRAM)",
-      "options": {
-        "baseURL": "http://ws-vision:11434/v1"
-      },
-      "models": {
-        "gemma4:12b": {
-          "name": "Gemma 4 12B"
-        },
-        "glm-5.2:cloud": {
-          "name": "GLM 5.2 Cloud"
-        }
-      }
-    },
-    "ollama_wsminifridge": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama - WS-MINIFRIDGE (16GB VRAM)",
+      "name": "Ollama - MINIFRIDGE (16GB VRAM)",
       "options": {
         "baseURL": "http://ws-minifridge:11434/v1"
       },
@@ -74,13 +58,6 @@
         "hf.co/ryzdfm/qwen2.5-coder-3b-claude_opus_4.6-distilled:Q4_K_M": {
           "name": "Qwen2.5 Coder 3B Opus 4.6 Distill"
         }
-      }
-    },
-    "ollama_local": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Local Ollama (localhost)",
-      "options": {
-        "baseURL": "http://localhost:11434/v1"
       }
     }
   },

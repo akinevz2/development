@@ -1,7 +1,7 @@
 ---
 description: Analyzes feature requests and implementation approaches for design trade-offs, risks, and best practices. Read-only analyst with no tools. Use before writing implementation code.
 mode: subagent
-model: ollama_wsrarebox/hf.co/TeichAI/GLM-4.7-Flash-Claude-Opus-4.5-High-Reasoning-Distill-GGUF:IQ4_XS
+model: ollama_local/hf.co/TeichAI/GLM-4.7-Flash-Claude-Opus-4.5-High-Reasoning-Distill-GGUF:IQ4_XS
 permission:
   edit: deny
   bash: deny
