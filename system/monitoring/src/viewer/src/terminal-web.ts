@@ -1,5 +1,7 @@
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
+import { WebglAddon } from '@xterm/addon-webgl';
+import { CanvasAddon } from '@xterm/addon-canvas';
 import '@xterm/xterm/css/xterm.css';
 import { MetricsGraphRenderer, geometryFor, paintFrame } from './graphs.ts';
 import type { AllMetrics } from '../../spec/metrics.types.ts';
@@ -13,6 +15,7 @@ export class WebMetricsTerminal {
     private readonly term: Terminal;
     private readonly fitAddon: FitAddon;
     private readonly renderer = new MetricsGraphRenderer();
+    private gpu: WebglAddon | CanvasAddon | null = null;
     private last: AllMetrics | null = null;
 
     constructor(container: HTMLElement) {
@@ -25,7 +28,32 @@ export class WebMetricsTerminal {
         this.fitAddon = new FitAddon();
         this.term.loadAddon(this.fitAddon);
         this.term.open(container);
+        this.loadGpuRenderer();
         this.fitAddon.fit();
+    }
+
+    /**
+     * Grid renderer: WebGL when the context comes up, 2D canvas as the
+     * durable fallback. Both draw every cell at fixed grid offsets, so
+     * odd-advance fallback glyphs can never shift the right border the
+     * way the DOM renderer does. Swaps to canvas automatically if the
+     * WebGL context is lost.
+     */
+    private loadGpuRenderer(): void {
+        try {
+            const webgl = new WebglAddon();
+            webgl.onContextLoss(() => this.swapToCanvas());
+            this.term.loadAddon(webgl);
+            this.gpu = webgl;
+        } catch {
+            this.swapToCanvas();
+        }
+    }
+
+    private swapToCanvas(): void {
+        this.gpu?.dispose();
+        this.gpu = new CanvasAddon();
+        this.term.loadAddon(this.gpu);
     }
 
     /** Re-fits the terminal to its container, resizes the graph
@@ -52,6 +80,7 @@ export class WebMetricsTerminal {
     }
 
     dispose(): void {
+        this.gpu?.dispose();
         this.term.dispose();
     }
 }
