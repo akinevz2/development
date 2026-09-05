@@ -22,3 +22,7 @@
 	path = personal/rarebert
 	url = https://github.com/akinevz2/rarebert.git
 	branch = feat/tui-exit-handling
+[submodule "system/turnstone"]
+	path = system/turnstone
+	url = https://github.com/turnstonelabs/turnstone
+	branch = main
