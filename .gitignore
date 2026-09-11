@@ -35,7 +35,15 @@ internet/*
 # Extra temporary submodules
 system/*
 !system/drop.mjs
+!system/pinch.mjs
 !system/keybindings.json
+
+# Ollama
+!system/ollama
+system/ollama/*
+!system/ollama/Dockerfile
+!system/ollama/docker-compose.yml
+!system/ollama/.dockerignore
 
 # OpenWebUI service definition is tracked; storage/artifacts are not
 !system/openwebui
@@ -44,12 +52,16 @@ system/openwebui/*
 !system/openwebui/docker-compose.yml
 !system/openwebui/.dockerignore
 
+# Turnstone
+!system/turnstone
+system/turnstone/*
+!system/turnstone/Dockerfile
+!system/turnstone/docker-compose.yml
+!system/turnstone/.dockerignore
+
 # System monitoring project tracked in its entirety; build artifacts are not
 !system/monitoring
 system/monitoring/node_modules/
 system/monitoring/src/viewer/dist/
 system/monitoring/dist/
 system/monitoring/bin/
-
-# Twitch scraper: local WIP, not ready to track
-twitch-category-scraper/
