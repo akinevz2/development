@@ -1,11 +1,20 @@
 services:
-  openwebui:
-    build: .
-    image: openwebui:v0.11.3
-    container_name: openwebui
-    restart: unless-stopped
-    network_mode: host
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:cuda
     environment:
-      OLLAMA_BASE_URLS: http://127.0.0.1:11434;http://ws-minifridge:11434
+      - WEBUI_SECRET_KEY=3f45f22f1529bb6be228fb4a788e5bbc8ab11b777f2c2f7a8b6483ff25ca1809
+      - OLLAMA_BASE_URLS=http://ws-rarebox:11434;http://ws-vision:11434;http://ws-minifridge:11434
+    ports:
+      - "3000:8080"
     volumes:
-      - ./storage:/app/backend/data
+      - open-webui:/app/backend/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+deploy:
+  resources:
+    reservations:
+      devices:
+        - driver: nvidia
+          count: all
+          capabilities: [gpu]

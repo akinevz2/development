@@ -1,0 +1,9 @@
+services:
+  ollama:
+    build: .
+    image: ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./storage:/root/.ollama

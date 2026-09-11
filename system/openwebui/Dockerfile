@@ -1,4 +1,4 @@
-FROM ghcr.io/open-webui/open-webui:v0.11.3
+FROM ghcr.io/open-webui/open-webui:main
 
 VOLUME ["/app/backend/data"]
 

@@ -1,0 +1,9 @@
+services:
+  turnstone:
+    build: .
+    image: turnstone:latest
+    container_name: turnstone
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./storage:/data
