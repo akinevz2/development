@@ -1,0 +1,2 @@
+FROM hf.co/unsloth/GLM-4.7-Flash-GGUF:UD-Q4_K_XL
+PARAMETER num_ctx 65536

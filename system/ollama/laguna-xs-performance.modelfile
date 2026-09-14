@@ -1,0 +1,3 @@
+FROM laguna-xs-2.1:latest
+PARAMETER num_ctx 65536
+PARAMETER num_predict 2048
