@@ -26,3 +26,6 @@
 	path = system/turnstone
 	url = https://github.com/turnstonelabs/turnstone
 	branch = main
+[submodule "personal/herbstutil"]
+	path = personal/herbstutil
+	url = https://github.com/akinevz2/herbstutil
