@@ -1,2 +1,2 @@
-FROM glm-4.7-flash:latest
-PARAMETER num_ctx 51260
+FROM ./.ollama/models/GLM-4.7-Flash-Q2_K_L.gguf
+PARAMETER num_ctx 131072
