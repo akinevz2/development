@@ -68,9 +68,5 @@
     "SSH_AUTH_SOCK": "/home/vscode/.ssh-agent",
     "OLLAMA_HOST": "localhost"
   },
-  "containerUser": "vscode",
-  "runArgs": [
-    "--network",
-    "host"
-  ]
+  "containerUser": "vscode"
 }
