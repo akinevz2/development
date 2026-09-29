@@ -65,3 +65,8 @@ system/monitoring/node_modules/
 system/monitoring/src/viewer/dist/
 system/monitoring/dist/
 system/monitoring/bin/
+
+!system/webuser
+system/webuser/node_modules/
+system/webuser/dist/
+system/webuser/bin/
