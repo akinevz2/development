@@ -30,3 +30,7 @@
 	path = system/herbstutil
 	url = https://github.com/akinevz2/herbstutil
 	branch = main
+[submodule "system/polyframes"]
+	path = system/polyframes
+	url = https://github.com/akinevz2/polyframes.git
+	branch = main
