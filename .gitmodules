@@ -42,7 +42,3 @@
 	path = system/on-deploy
 	url = https://github.com/akinevz2/on-deploy.git
 	branch = main
-[submodule "system/webuser"]
-	path = system/webuser
-	url = https://github.com/akinevz2/webuser.git
-	branch = master

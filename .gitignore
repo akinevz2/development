@@ -74,4 +74,4 @@ system/monitoring/bin/
 !system/webuser
 system/webuser/node_modules/
 system/webuser/dist/
-system/webuser/bin/
+system/webuser/bin/system/webuser/
