@@ -34,3 +34,7 @@
 	path = system/polyframes
 	url = https://github.com/akinevz2/polyframes.git
 	branch = main
+[submodule "system/herbctl"]
+	path = system/herbctl
+	url = https://github.com/akinevz2/herbctl.git
+	branch = main
