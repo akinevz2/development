@@ -38,3 +38,7 @@
 	path = system/herbctl
 	url = https://github.com/akinevz2/herbctl.git
 	branch = main
+[submodule "system/on-deploy"]
+	path = system/on-deploy
+	url = https://github.com/akinevz2/on-deploy.git
+	branch = main
