@@ -5,7 +5,7 @@ DROP_ROOT ?= $(CURDIR)
 PINCH_PORT ?= 7332
 PINCH_ROOT ?= $(CURDIR)
 
-.PHONY: all restore pull push sync status edit
+.PHONY: all restore pull push sync status edit publish
 
 all: edit
 	@echo all engines go!
@@ -41,6 +41,13 @@ drop:
 
 pinch:
 	@node system/pinch.mjs --port $(PINCH_PORT) --root $(PINCH_ROOT)
+
+# Stage npm publishing for all ~/dots owned submodules:
+# safety-checks ~/dots, pushes submodule commits, syncs clones into system/,
+# then spawns one interactive session per package for the manual npm publish.
+# Pass ARGS="--dry-run" or ARGS="--no-spawn" to temper it.
+publish:
+	@bash system/bin/publish-dots.sh $(ARGS)
 
 restore:
 	`( printf "console.log({"; grep postAttachCommand .devcontainer/devcontainer.json; printf "}.postAttachCommand)" ) | node`

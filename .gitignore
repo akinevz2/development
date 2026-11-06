@@ -38,6 +38,11 @@ system/*
 !system/pinch.mjs
 !system/keybindings.json
 
+# The npm-publish staging machinery is tracked (publish-dots.sh +
+# Makefile publish target); the system/<pkg> clones are gitlinks,
+# force-added individually
+!system/bin
+
 # Ollama
 !system/ollama
 system/ollama/*
