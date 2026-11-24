@@ -1,5 +1,14 @@
 # Development Workstation Devcontainer
 
+Here Kirill develops his operating system — a collection of
+package-deploying utilities revolving around **herbstluftwm**, **polybar**,
+**dunst**, **rofi** and **alacritty**, layered over the host as a
+thin-layer OS.
+
+The system architecture — the public submodules, the tag/menu/mouse
+surfaces and the deployment machinery — lives in
+[akinevz2/depot](https://github.com/akinevz2/depot).
+
 This repository is configured to run as a persistent development workstation in
 VS Code Dev Containers.
 
