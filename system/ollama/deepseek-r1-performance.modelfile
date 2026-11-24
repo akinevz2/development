@@ -1,2 +1,0 @@
-FROM hf.co/unsloth/DeepSeek-R1-Distill-Qwen-14B-GGUF:Q8_0
-PARAMETER num_ctx 46820

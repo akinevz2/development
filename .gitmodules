@@ -22,10 +22,6 @@
 	path = personal/rarebert
 	url = https://github.com/akinevz2/rarebert.git
 	branch = feat/tui-exit-handling
-[submodule "system/turnstone"]
-	path = system/turnstone
-	url = https://github.com/turnstonelabs/turnstone
-	branch = main
 [submodule "system/herbstutil"]
 	path = system/herbstutil
 	url = https://github.com/akinevz2/herbstutil
@@ -41,4 +37,8 @@
 [submodule "system/on-deploy"]
 	path = system/on-deploy
 	url = https://github.com/akinevz2/on-deploy.git
+	branch = main
+[submodule "system"]
+	path = system
+	url = https://github.com/akinevz2/depot.git
 	branch = main
