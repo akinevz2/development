@@ -22,22 +22,6 @@
 	path = personal/rarebert
 	url = https://github.com/akinevz2/rarebert.git
 	branch = feat/tui-exit-handling
-[submodule "system/herbstutil"]
-	path = system/herbstutil
-	url = https://github.com/akinevz2/herbstutil
-	branch = main
-[submodule "system/polyframes"]
-	path = system/polyframes
-	url = https://github.com/akinevz2/polyframes.git
-	branch = main
-[submodule "system/herbctl"]
-	path = system/herbctl
-	url = https://github.com/akinevz2/herbctl.git
-	branch = main
-[submodule "system/on-deploy"]
-	path = system/on-deploy
-	url = https://github.com/akinevz2/on-deploy.git
-	branch = main
 [submodule "system"]
 	path = system
 	url = https://github.com/akinevz2/depot.git
