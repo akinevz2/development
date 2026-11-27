@@ -2,6 +2,16 @@
 
 This document provides guidance for planning and managing code changes across development environments, particularly when synchronizing `main` branches with `ws-rarebox`.
 
+## Commit Grouping Discipline
+
+Commits are tracked one-per-feature:
+
+- Each feature added or removed gets exactly one commit — no more, no less.
+- Incremental changes (follow-up fixes, tweaks, touch-ups belonging to a feature already committed) must be **clobbered together** with that feature's existing commit: `git commit --fixup <sha>` + `git rebase -i --autosquash --root` (or `--amend` when the feature is HEAD), never a separate micro-commit.
+- Mixed-concern work must be split before committing: scaffold, pure engine, runtime, CLI, lint, docs and tests are separate features and land as separate commits.
+- When a refactor rewrites a feature, the rewrite clobbers into the same feature commit so history stays one-commit-per-feature.
+- Never let stray files ride along in a feature commit: check `git status --short` before committing, and commit only the paths that belong to the feature.
+
 ## Before Synchronizing with ws-rarebox
 
 ### 1. Stage and Review All Changes
