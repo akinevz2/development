@@ -29,6 +29,10 @@ Thumbs.db
 # Local credentials (never commit)
 .my-credentials
 
+# Local-only tools & config (never commit)
+gdq.py
+opencode.json
+
 # Ignore all files inside internet/ directory
 internet/*
 

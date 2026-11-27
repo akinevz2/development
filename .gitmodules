@@ -26,3 +26,7 @@
 	path = system
 	url = https://github.com/akinevz2/depot.git
 	branch = main
+[submodule "personal/cinnamon-print"]
+	path = personal/cinnamon-print
+	url = https://github.com/akinevz2/cinnamon-print.git
+	branch = main
